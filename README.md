@@ -46,31 +46,3 @@ npm run dev      # Start dev server
 npm run build    # Production build
 npm run preview  # Preview build
 ```
-
-## Notes
-
-- Keep commits small and descriptive
-- Use feature branches and PRs
-- Document decisions in README/CONTRIBUTING
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
