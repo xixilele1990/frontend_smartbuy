@@ -1,6 +1,6 @@
-# SmartBuy Frontend - Minimal Day 1 Setup
+# SmartBuy Frontend - Minimal Setup (Routing Ready)
 
-A minimal React + TypeScript starter focused on collaboration. 
+A minimal React + TypeScript starter focused on collaboration. Now includes basic routing and placeholder pages, with no styles and no API layer yet.
 
 ## Quick Start
 
@@ -15,29 +15,38 @@ App runs at http://localhost:5173
 
 ```
 src/
-├── App.tsx        # Minimal landing component
-├── main.tsx       # App bootstrap (no global styles)
-├── types/         # Shared TypeScript interfaces
-│   └── index.ts
-├── components/    # Reusable components (empty, add as needed)
-└── pages/         # Page components (empty, add as needed)
+├── App.tsx          # Router with basic routes
+├── main.tsx         # App bootstrap (no global styles)
+├── types/
+│   └── index.ts     # Shared TypeScript interfaces
+├── components/
+│   └── Navbar.tsx   # Minimal navbar using react-router Links
+└── pages/
+	├── Dashboard.tsx
+	├── Profile.tsx
+	└── Houses.tsx
 ```
 
 ## What's Included
 
 - React + TypeScript via Vite
-- Basic `App.tsx` welcome content
+- Basic routing with `react-router-dom`
+- Minimal `Navbar` and three placeholder pages (Dashboard, Profile, Houses)
 - Shared types in `src/types/index.ts`
 - No CSS imports (pure minimal)
-- No external deps beyond React/ReactDOM
 
 ## Next Steps
 
-1. Install routing: `npm install react-router-dom`
-2. Create `Navbar` and basic routes
-3. Build pages: Dashboard, Profile, Houses, Detail
-4. Add API layer when backend is ready
-5. Introduce styles (CSS modules or utility CSS)
+- [x] Initialize Vite + React + TypeScript minimal setup
+- [x] Install routing: `npm install react-router-dom`
+- [x] Create `Navbar` component with links
+- [x] Add placeholder pages: `Dashboard`, `Profile`, `Houses`
+- [x] Verify type-check (`npx tsc --noEmit`) and build (`npm run build`)
+- [ ] Implement Buyer Profile form on `Profile` page
+- [ ] Add House list and add-house flow on `Houses`
+- [ ] Create `HouseDetail` route (`/houses/:id`) placeholder
+- [ ] Introduce API service when backend is ready
+- [ ] Add styles (CSS modules or a utility CSS framework)
 
 ## Scripts
 
