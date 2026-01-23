@@ -5,16 +5,13 @@ import type { House } from '../types';
 
 // Example properties for demonstration
 const exampleHouses: House[] = [
-  { address: '123 Oak Street', bedrooms: 3, bathrooms: 2, squareFeet: 1800 },
-  { address: '456 Maple Avenue', bedrooms: 4, bathrooms: 2.5, squareFeet: 2200 },
-  { address: '789 Pine Road', bedrooms: 3, bathrooms: 1.5, squareFeet: 1600 }
+  { address: '123 Oak Street' },
+  { address: '456 Maple Avenue' },
+  { address: '789 Pine Road' }
 ];
 
 const initialHouseForm: House = {
-  address: '',
-  bedrooms: 3,
-  bathrooms: 2,
-  squareFeet: 1800
+  address: ''
 };
 
 function Houses() {
@@ -28,12 +25,6 @@ function Houses() {
   const handleTextChange = (field: keyof House) => (event: ChangeEvent<HTMLInputElement>) => {
     setSaveMessage(null);
     setFormData((prev) => ({ ...prev, [field]: event.target.value }));
-  };
-
-  const handleNumberChange = (field: keyof House) => (event: ChangeEvent<HTMLInputElement>) => {
-    const numericValue = Number(event.target.value);
-    setSaveMessage(null);
-    setFormData((prev) => ({ ...prev, [field]: Number.isNaN(numericValue) ? 0 : numericValue }));
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -94,45 +85,6 @@ function Houses() {
             />
           </div>
 
-          <div>
-            <label htmlFor="bedrooms">Bedrooms</label>
-            <input
-              id="bedrooms"
-              name="bedrooms"
-              type="number"
-              min={0}
-              step={1}
-              value={formData.bedrooms}
-              onChange={handleNumberChange('bedrooms')}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="bathrooms">Bathrooms</label>
-            <input
-              id="bathrooms"
-              name="bathrooms"
-              type="number"
-              min={0}
-              step={0.5}
-              value={formData.bathrooms}
-              onChange={handleNumberChange('bathrooms')}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="squareFeet">Square Feet</label>
-            <input
-              id="squareFeet"
-              name="squareFeet"
-              type="number"
-              min={0}
-              step={100}
-              value={formData.squareFeet}
-              onChange={handleNumberChange('squareFeet')}
-            />
-          </div>
-
           <button type="submit">Add Property</button>
         </form>
 
@@ -147,7 +99,7 @@ function Houses() {
         <ul>
           {houses.map((house, index) => (
             <li key={index}>
-              <strong>{house.address}</strong> - {house.bedrooms} bed, {house.bathrooms} bath, {house.squareFeet} sqft
+              <strong>{house.address}</strong>
               {userHouses.length > 0 && (
                 <button type="button" onClick={() => handleDeleteHouse(index)} style={{ marginLeft: '10px' }}>
                   Delete

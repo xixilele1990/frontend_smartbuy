@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { PriorityMode, UserProfile } from '../types';
@@ -14,7 +14,10 @@ const initialProfile: UserProfile = {
 };
 
 function Profile() {
-  const [profile, setProfile] = useState<UserProfile>(initialProfile);
+  const savedProfileString = localStorage.getItem('userProfile');
+  const savedProfile: UserProfile | null = savedProfileString ? JSON.parse(savedProfileString) : null;
+  const [profile, setProfile] = useState<UserProfile>(savedProfile ?? initialProfile);
+  const [isExampleData, setIsExampleData] = useState<boolean>(!savedProfile);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -32,6 +35,7 @@ function Profile() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     localStorage.setItem('userProfile', JSON.stringify(profile));
+    setIsExampleData(false);
     setSaveMessage('Profile saved locally (no backend connected).');
     // Replace with API call once backend is available
     console.log('Profile submitted', profile);
@@ -41,17 +45,13 @@ function Profile() {
     if (window.confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
       localStorage.removeItem('userProfile');
       setProfile(initialProfile);
+      setIsExampleData(true);
       setSaveMessage('Profile deleted successfully.');
       setTimeout(() => {
         navigate('/');
       }, 1500);
     }
   };
-
-  const budgetPerMonth = useMemo(() => {
-    if (!profile.budget) return 0;
-    return Math.round(profile.budget / 12);
-  }, [profile.budget]);
 
   return (
     <div>
@@ -76,7 +76,6 @@ function Profile() {
             value={profile.budget}
             onChange={handleNumberChange('budget')}
           />
-          <small>Approx. ${budgetPerMonth} per month assuming 12 months.</small>
         </div>
 
         <div>
@@ -86,9 +85,9 @@ function Profile() {
             name="targetBedrooms"
             type="number"
             min={0}
-            step={1}
-            value={profile.targetBedrooms}
+            step={1}     
             onChange={handleNumberChange('targetBedrooms')}
+            placeholder="e.g. 3"
           />
         </div>
 
@@ -100,8 +99,8 @@ function Profile() {
             type="number"
             min={0}
             step={0.5}
-            value={profile.targetBathrooms}
             onChange={handleNumberChange('targetBathrooms')}
+            placeholder="e.g. 2"
           />
         </div>
 
@@ -127,6 +126,7 @@ function Profile() {
 
       <div>
         <h3>Profile preview</h3>
+        {isExampleData ? <p><em>Example data</em></p> : null}
         <ul>
           <li>Budget: ${profile.budget.toLocaleString('en-US')}</li>
           <li>
