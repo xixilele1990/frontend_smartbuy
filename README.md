@@ -42,7 +42,7 @@ src/
 - [x] Create `Navbar` component with links
 - [x] Add placeholder pages: `Dashboard`, `Profile`, `Houses`
 - [x] Verify type-check (`npx tsc --noEmit`) and build (`npm run build`)
-- [ ] Implement Buyer Profile form on `Profile` page
+- [x] Implement Buyer Profile form on `Profile` page
 - [ ] Add House list and add-house flow on `Houses`
 - [ ] Create `HouseDetail` route (`/houses/:id`) placeholder
 - [ ] Introduce API service when backend is ready
