@@ -29,6 +29,7 @@ function Profile() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    localStorage.setItem('userProfile', JSON.stringify(profile));
     setSaveMessage('Profile saved locally (no backend connected).');
     // Replace with API call once backend is available
     console.log('Profile submitted', profile);

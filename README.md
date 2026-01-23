@@ -20,7 +20,8 @@ src/
 ├── types/
 │   └── index.ts     # Shared TypeScript interfaces
 ├── components/
-│   └── Navbar.tsx   # Minimal navbar using react-router Links
+│   ├── Navbar.tsx   # Minimal navbar using react-router Links
+│   └── Footer.tsx   # Minimal footer showing project/team names
 └── pages/
 	├── Dashboard.tsx
 	├── Profile.tsx
@@ -32,6 +33,7 @@ src/
 - React + TypeScript via Vite
 - Basic routing with `react-router-dom`
 - Minimal `Navbar` and three placeholder pages (Dashboard, Profile, Houses)
+- Reusable `Footer` component for project/team labels
 - Shared types in `src/types/index.ts`
 - No CSS imports (pure minimal)
 
