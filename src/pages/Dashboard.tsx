@@ -1,9 +1,27 @@
 import { Link } from 'react-router-dom';
-import type { UserProfile } from '../types';
+import type { UserProfile, House } from '../types';
 
 function Dashboard() {
   const savedData = localStorage.getItem('userProfile');
   const profile: UserProfile | null = savedData ? JSON.parse(savedData) : null;
+
+  // Example houses for demonstration
+  const exampleHouses: House[] = [
+    { address: '123 Oak Street', bedrooms: 3, bathrooms: 2, squareFeet: 1800 },
+    { address: '456 Maple Avenue', bedrooms: 4, bathrooms: 2.5, squareFeet: 2200 },
+    { address: '789 Pine Road', bedrooms: 3, bathrooms: 1.5, squareFeet: 1600 }
+  ];
+
+  const savedHouses = localStorage.getItem('userHouses');
+  const userHouses: House[] = savedHouses ? JSON.parse(savedHouses) : [];
+  const houses = userHouses.length > 0 ? userHouses : exampleHouses;
+
+  // Example properties with scores
+  const exampleProperties = [
+    { address: '123 Oak Street', score: 85 },
+    { address: '456 Maple Avenue', score: 92 },
+    { address: '789 Pine Road', score: 78 }
+  ].sort((a, b) => b.score - a.score); // Sort by score descending
 
   return (
     <div>
@@ -21,27 +39,52 @@ function Dashboard() {
             <li>Priority Mode: {profile.priorityMode}</li>
           </ul>
           <p>
-            <Link to="/profile">Edit Profile</Link>
+            <Link to="/profile">
+              <button>Edit Profile</button>
+            </Link>
           </p>
+
+          <div>
+            <h3>Your Properties</h3>
+            {userHouses.length === 0 ? (
+              <p><em>Example data</em></p>
+            ) : null}
+            <ul>
+              {houses.map((house, index) => (
+                <li key={index}>
+                  <strong>{house.address}</strong> - {house.bedrooms} bed, {house.bathrooms} bath, {house.squareFeet} sqft
+                </li>
+              ))}
+            </ul>
+            <Link to="/houses">
+              <button>Go to Houses</button>
+            </Link>
+          </div>
+
+          <div>
+            <h3>Example SmartScore Rankings</h3>
+            <ol>
+              {exampleProperties.map((property, index) => (
+                <li key={index}>
+                  <strong>{property.address}</strong> - Score: <strong>{property.score}/100</strong>
+                  {' '}
+                  <button type="button" onClick={() => {}}>Show Details</button>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
       ) : (
         <div>
           <h2>Get Started</h2>
+          <p>Please set up your profile to customize your home buying preferences.</p>
           <p>
-            <Link to="/profile">Set up your profile</Link> to customize your home buying preferences.
+            <Link to="/profile">
+              <button>Set Up Profile</button>
+            </Link>
           </p>
         </div>
       )}
-
-      <div>
-        <h2>Next Steps:</h2>
-        <ol>
-          <li>Set up your buyer profile (budget, bedrooms, priorities)</li>
-          <li>Add properties you're considering</li>
-          <li>View SmartScore rankings</li>
-          <li>Compare properties side-by-side</li>
-        </ol>
-      </div>
     </div>
   );
 }

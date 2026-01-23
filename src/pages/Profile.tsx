@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { PriorityMode, UserProfile } from '../types';
 
@@ -15,6 +16,7 @@ const initialProfile: UserProfile = {
 function Profile() {
   const [profile, setProfile] = useState<UserProfile>(initialProfile);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleNumberChange = (field: keyof UserProfile) => (event: ChangeEvent<HTMLInputElement>) => {
     const numericValue = Number(event.target.value);
@@ -35,6 +37,17 @@ function Profile() {
     console.log('Profile submitted', profile);
   };
 
+  const handleDelete = () => {
+    if (window.confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
+      localStorage.removeItem('userProfile');
+      setProfile(initialProfile);
+      setSaveMessage('Profile deleted successfully.');
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    }
+  };
+
   const budgetPerMonth = useMemo(() => {
     if (!profile.budget) return 0;
     return Math.round(profile.budget / 12);
@@ -42,6 +55,12 @@ function Profile() {
 
   return (
     <div>
+      <div>
+        <Link to="/">
+          <button type="button">← Back to Dashboard</button>
+        </Link>
+      </div>
+
       <h1>Buyer Profile</h1>
       <p>Configure your home buying preferences. Data stays in memory until an API is added.</p>
 
@@ -101,6 +120,10 @@ function Profile() {
       </form>
 
       {saveMessage ? <p>{saveMessage}</p> : null}
+
+      <div>
+        <button type="button" onClick={handleDelete}>Delete Profile</button>
+      </div>
 
       <div>
         <h3>Profile preview</h3>
