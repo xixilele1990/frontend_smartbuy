@@ -3,7 +3,6 @@ import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { House } from '../types';
 
-// Example properties for demonstration
 const exampleHouses: House[] = [
   { address: '123 Oak Street' },
   { address: '456 Maple Avenue' },

@@ -5,7 +5,6 @@ function Dashboard() {
   const savedData = localStorage.getItem('userProfile');
   const profile: UserProfile | null = savedData ? JSON.parse(savedData) : null;
 
-  // Example houses for demonstration
   const exampleHouses: House[] = [
     { address: '123 Oak Street', bedrooms: 3, bathrooms: 2, squareFeet: 1800 },
     { address: '456 Maple Avenue', bedrooms: 4, bathrooms: 2.5, squareFeet: 2200 },
@@ -16,7 +15,6 @@ function Dashboard() {
   const userHouses: House[] = savedHouses ? JSON.parse(savedHouses) : [];
   const houses = userHouses.length > 0 ? userHouses : exampleHouses;
 
-  // Example properties with scores
   const exampleProperties = [
     { address: '123 Oak Street', score: 85 },
     { address: '456 Maple Avenue', score: 92 },
