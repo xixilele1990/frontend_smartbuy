@@ -19,21 +19,71 @@ function Profile() {
   const [profile, setProfile] = useState<UserProfile>(savedProfile ?? initialProfile);
   const [isExampleData, setIsExampleData] = useState<boolean>(!savedProfile);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleNumberChange = (field: keyof UserProfile) => (event: ChangeEvent<HTMLInputElement>) => {
-    const numericValue = Number(event.target.value);
+    const inputValue = event.target.value;
+    setErrorMessage(null);
     setSaveMessage(null);
-    setProfile((prev) => ({ ...prev, [field]: Number.isNaN(numericValue) ? 0 : numericValue }));
+    
+    if (inputValue === '') {
+      setProfile((prev) => ({ ...prev, [field]: 0 }));
+      return;
+    }
+    
+    // Convert string to number, automatically handles leading zeros (e.g., "02000" → 2000)
+    const numericValue = Number(inputValue);
+    if (Number.isNaN(numericValue) || numericValue < 0) {
+      setProfile((prev) => ({ ...prev, [field]: 0 }));
+    } else {
+      setProfile((prev) => ({ ...prev, [field]: numericValue }));
+    }
   };
 
   const handlePriorityChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setErrorMessage(null);
     setSaveMessage(null);
     setProfile((prev) => ({ ...prev, priorityMode: event.target.value as PriorityMode }));
   };
 
+  const validateForm = (): boolean => {
+    if (!profile.priorityMode || !priorityModes.includes(profile.priorityMode)) {
+      setErrorMessage('Please select a valid Priority Mode.');
+      return false;
+    }
+    
+    if (profile.budget < 0) {
+      setErrorMessage('Budget cannot be negative.');
+      return false;
+    }
+    
+    if (profile.targetBedrooms < 0) {
+      setErrorMessage('Target Bedrooms cannot be negative.');
+      return false;
+    }
+    
+    if (profile.targetBathrooms < 0) {
+      setErrorMessage('Target Bathrooms cannot be negative.');
+      return false;
+    }
+    
+    if (profile.budget === 0 && profile.targetBedrooms === 0 && profile.targetBathrooms === 0) {
+      setErrorMessage('Please fill in at least some profile information.');
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setErrorMessage(null);
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     localStorage.setItem('userProfile', JSON.stringify(profile));
     setIsExampleData(false);
     setSaveMessage('Profile saved locally (no backend connected).');
@@ -75,6 +125,7 @@ function Profile() {
             step={1000}
             value={profile.budget}
             onChange={handleNumberChange('budget')}
+            required
           />
         </div>
 
@@ -85,9 +136,11 @@ function Profile() {
             name="targetBedrooms"
             type="number"
             min={0}
-            step={1}     
+            step={1}
+            value={profile.targetBedrooms}
             onChange={handleNumberChange('targetBedrooms')}
             placeholder="e.g. 3"
+            required
           />
         </div>
 
@@ -99,14 +152,16 @@ function Profile() {
             type="number"
             min={0}
             step={0.5}
+            value={profile.targetBathrooms}
             onChange={handleNumberChange('targetBathrooms')}
             placeholder="e.g. 2"
+            required
           />
         </div>
 
         <div>
           <label htmlFor="priorityMode">Priority Mode</label>
-          <select id="priorityMode" name="priorityMode" value={profile.priorityMode} onChange={handlePriorityChange}>
+          <select id="priorityMode" name="priorityMode" value={profile.priorityMode} onChange={handlePriorityChange} required>
             {priorityModes.map((mode) => (
               <option key={mode} value={mode}>
                 {mode}
@@ -115,6 +170,7 @@ function Profile() {
           </select>
         </div>
 
+        {errorMessage ? <p style={{ color: 'red' }}>{errorMessage}</p> : null}
         <button type="submit">Save Profile</button>
       </form>
 

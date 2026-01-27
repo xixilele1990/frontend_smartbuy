@@ -17,22 +17,40 @@ const initialHouseForm: House = {
 function Houses() {
   const [formData, setFormData] = useState<House>(initialHouseForm);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const savedData = localStorage.getItem('userHouses');
   const userHouses: House[] = savedData ? JSON.parse(savedData) : [];
   const houses = userHouses.length > 0 ? userHouses : exampleHouses;
 
   const handleTextChange = (field: keyof House) => (event: ChangeEvent<HTMLInputElement>) => {
+    setErrorMessage(null);
     setSaveMessage(null);
     setFormData((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
+  const validateForm = (): boolean => {
+    if (!formData.address || !formData.address.trim()) {
+      setErrorMessage('Please enter a property address.');
+      return false;
+    }
+    
+    if (formData.address.trim().length < 3) {
+      setErrorMessage('Property address must be at least 3 characters long.');
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!formData.address.trim()) {
-      setSaveMessage('Please enter a property address.');
+    setErrorMessage(null);
+    
+    if (!validateForm()) {
       return;
     }
+    
     const updatedHouses = [...userHouses, formData];
     localStorage.setItem('userHouses', JSON.stringify(updatedHouses));
     setSaveMessage('Property added successfully.');
@@ -82,13 +100,15 @@ function Houses() {
               value={formData.address}
               onChange={handleTextChange('address')}
               placeholder="e.g. 123 Main Street"
+              required
             />
           </div>
 
+          {errorMessage ? <p style={{ color: 'red' }}>{errorMessage}</p> : null}
           <button type="submit">Add Property</button>
         </form>
 
-        {saveMessage ? <p>{saveMessage}</p> : null}
+        {saveMessage ? <p style={{ color: 'green' }}>{saveMessage}</p> : null}
       </div>
 
       <div>
