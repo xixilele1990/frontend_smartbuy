@@ -1,9 +1,25 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import type { UserProfile, House } from '../types';
+import { getProfile } from '../services/profileService';
 
 function Dashboard() {
-  const savedData = localStorage.getItem('userProfile');
-  const profile: UserProfile | null = savedData ? JSON.parse(savedData) : null;
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
+  // Load profile from backend API
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const data = await getProfile();
+        setProfile(data);
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        setProfile(null);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   const exampleHouses: House[] = [
     { address: '123 Oak Street', bedrooms: 3, bathrooms: 2, squareFeet: 1800 },
