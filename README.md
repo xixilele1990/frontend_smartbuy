@@ -4,12 +4,32 @@ A React + TypeScript application for home buying decision support. Features buye
 
 ## Quick Start
 
+### Frontend Only (Development)
 ```bash
 npm install
 npm run dev
 ```
 
 App runs at http://localhost:5173
+
+### With Backend Integration
+1. **Start Backend** (see [Backend Setup](#backend-integration))
+   ```bash
+   cd /path/to/smartbuy-backend
+   ./gradlew bootRun
+   ```
+
+2. **Configure Frontend**
+   ```bash
+   # Create .env file
+   echo "VITE_API_BASE_URL=http://localhost:8080" > .env
+   ```
+
+3. **Start Frontend**
+   ```bash
+   npm install
+npm run dev
+   ```
 
 ## Project Structure
 
@@ -48,12 +68,49 @@ src/
 - [x] Implement House list and add-house flow on `Houses` page
 - [x] Add Delete Profile and Delete Property features
 - [x] Display Properties preview on Dashboard
+- [x] Create API service layer for backend integration
+- [x] Add form validation for Profile and Houses pages
+- [x] Update Profile.tsx to use API instead of localStorage
+- [ ] Create houseService.ts for Houses API integration
+- [ ] Update Houses.tsx to use API instead of localStorage
 - [ ] Implement actual SmartScore calculation with real property data
 - [ ] Create `HouseDetail` route (`/houses/:id`) with full scoring breakdown
-- [ ] Connect to backend API for user profiles and properties
+- [ ] Add loading states and error handling UI
 - [ ] Add CSS styling (CSS modules or utility framework)
 - [ ] Add property filtering and sorting options
 - [ ] Implement property comparison feature
+
+## Backend Integration
+
+This frontend is designed to work with the SmartBuy Java Spring Boot backend.
+
+**Backend Repository**: https://github.com/xixilele1990/smartbuy
+
+### Setup Instructions
+
+1. **Clone and start backend**:
+   ```bash
+   git clone https://github.com/xixilele1990/smartbuy.git
+   cd smartbuy
+   ./gradlew bootRun
+   ```
+
+2. **Configure CORS** in `application.properties`:
+   ```properties
+   app.cors.allowed-origins=http://localhost:5173
+   ```
+
+3. **Test connection**:
+   ```bash
+   curl http://localhost:8080/buyerProfile/test_session
+   ```
+
+### API Services
+
+- ✅ `profileService.ts` - Buyer profile CRUD operations
+- ⏳ `houseService.ts` - Property management (coming soon)
+- ⏳ `scoringService.ts` - SmartScore calculations (coming soon)
+
 
 ## Scripts
 

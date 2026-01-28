@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { PriorityMode, UserProfile } from '../types';
+import { saveProfile, getProfile, deleteProfile } from '../services/profileService';
+import { ApiError } from '../services/api';
 
 const priorityModes: PriorityMode[] = ['Balanced', 'Budget Driven', 'Safety First', 'Education First'];
 
@@ -14,13 +16,37 @@ const initialProfile: UserProfile = {
 };
 
 function Profile() {
-  const savedProfileString = localStorage.getItem('userProfile');
-  const savedProfile: UserProfile | null = savedProfileString ? JSON.parse(savedProfileString) : null;
-  const [profile, setProfile] = useState<UserProfile>(savedProfile ?? initialProfile);
-  const [isExampleData, setIsExampleData] = useState<boolean>(!savedProfile);
+  const [profile, setProfile] = useState<UserProfile>(initialProfile);
+  const [isExampleData, setIsExampleData] = useState<boolean>(true);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isFetching, setIsFetching] = useState<boolean>(true);
   const navigate = useNavigate();
+
+  // Load profile from API on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      setIsFetching(true);
+      try {
+        const data = await getProfile();
+        if (data) {
+          setProfile(data);
+          setIsExampleData(false);
+        } else {
+          setIsExampleData(true);
+        }
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        setErrorMessage('Failed to load profile from server.');
+        setIsExampleData(true);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   const handleNumberChange = (field: keyof UserProfile) => (event: ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value;
@@ -32,7 +58,6 @@ function Profile() {
       return;
     }
     
-    // Convert string to number, automatically handles leading zeros (e.g., "02000" → 2000)
     const numericValue = Number(inputValue);
     if (Number.isNaN(numericValue) || numericValue < 0) {
       setProfile((prev) => ({ ...prev, [field]: 0 }));
@@ -76,32 +101,77 @@ function Profile() {
     return true;
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage(null);
+    setSaveMessage(null);
     
     if (!validateForm()) {
       return;
     }
+
+    setIsLoading(true);
     
-    localStorage.setItem('userProfile', JSON.stringify(profile));
-    setIsExampleData(false);
-    setSaveMessage('Profile saved locally (no backend connected).');
-    // Replace with API call once backend is available
-    console.log('Profile submitted', profile);
+    try {
+      const savedProfile = await saveProfile(profile);
+      setProfile(savedProfile);
+      setIsExampleData(false);
+      setSaveMessage('✅ Profile saved successfully to server.');
+      console.log('Profile submitted', savedProfile);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        if (error.errors) {
+          const errorMessages = Object.entries(error.errors)
+            .map(([field, message]) => `${field}: ${message}`)
+            .join(', ');
+          setErrorMessage(`Validation failed: ${errorMessages}`);
+        } else {
+          setErrorMessage(error.message || 'Failed to save profile.');
+        }
+      } else {
+        setErrorMessage('Network error. Please try again.');
+      }
+      console.error('Failed to save profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
-      localStorage.removeItem('userProfile');
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      await deleteProfile();
       setProfile(initialProfile);
       setIsExampleData(true);
-      setSaveMessage('Profile deleted successfully.');
+      setSaveMessage('Profile deleted successfully from server.');
       setTimeout(() => {
         navigate('/');
       }, 1500);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setErrorMessage(error.message || 'Failed to delete profile.');
+      } else {
+        setErrorMessage('Network error. Please try again.');
+      }
+      console.error('Failed to delete profile:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isFetching) {
+    return (
+      <div>
+        <h1>Loading Profile...</h1>
+        <p>Please wait while we fetch your data from the server.</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -112,7 +182,7 @@ function Profile() {
       </div>
 
       <h1>Buyer Profile</h1>
-      <p>Configure your home buying preferences. Data stays in memory until an API is added.</p>
+      <p>Configure your home buying preferences. Data is saved to the server.</p>
 
       <form onSubmit={handleSubmit}>
         <div>
@@ -126,6 +196,7 @@ function Profile() {
             value={profile.budget}
             onChange={handleNumberChange('budget')}
             required
+            disabled={isLoading}
           />
         </div>
 
@@ -141,6 +212,7 @@ function Profile() {
             onChange={handleNumberChange('targetBedrooms')}
             placeholder="e.g. 3"
             required
+            disabled={isLoading}
           />
         </div>
 
@@ -156,12 +228,20 @@ function Profile() {
             onChange={handleNumberChange('targetBathrooms')}
             placeholder="e.g. 2"
             required
+            disabled={isLoading}
           />
         </div>
 
         <div>
           <label htmlFor="priorityMode">Priority Mode</label>
-          <select id="priorityMode" name="priorityMode" value={profile.priorityMode} onChange={handlePriorityChange} required>
+          <select
+            id="priorityMode"
+            name="priorityMode"
+            value={profile.priorityMode}
+            onChange={handlePriorityChange}
+            required
+            disabled={isLoading}
+          >
             {priorityModes.map((mode) => (
               <option key={mode} value={mode}>
                 {mode}
@@ -170,19 +250,23 @@ function Profile() {
           </select>
         </div>
 
-        {errorMessage ? <p style={{ color: 'red' }}>{errorMessage}</p> : null}
-        <button type="submit">Save Profile</button>
+        {errorMessage ? <p style={{ color: 'red' }}>❌ {errorMessage}</p> : null}
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Saving...' : 'Save Profile'}
+        </button>
       </form>
 
-      {saveMessage ? <p>{saveMessage}</p> : null}
+      {saveMessage ? <p style={{ color: 'green' }}>{saveMessage}</p> : null}
 
       <div>
-        <button type="button" onClick={handleDelete}>Delete Profile</button>
+        <button type="button" onClick={handleDelete} disabled={isLoading}>
+          {isLoading ? 'Deleting...' : 'Delete Profile'}
+        </button>
       </div>
 
       <div>
         <h3>Profile preview</h3>
-        {isExampleData ? <p><em>Example data</em></p> : null}
+        {isExampleData ? <p><em>Example data (not saved to server)</em></p> : <p><em>Data from server ✅</em></p>}
         <ul>
           <li>Budget: ${profile.budget.toLocaleString('en-US')}</li>
           <li>
