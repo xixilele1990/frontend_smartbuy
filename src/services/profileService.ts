@@ -75,9 +75,6 @@ const fromResponse = (response: BuyerProfileResponse): UserProfile => ({
   priorityMode: mapPriorityModeFromBackend(response.priorityMode) as any
 });
 
-/**
- * Save or update a buyer profile
- */
 export async function saveProfile(profile: UserProfile): Promise<UserProfile> {
   const dto = toDTO(profile);
   const response = await apiFetch<BuyerProfileResponse>(
@@ -90,9 +87,6 @@ export async function saveProfile(profile: UserProfile): Promise<UserProfile> {
   return fromResponse(response);
 }
 
-/**
- * Get the current user's profile
- */
 export async function getProfile(): Promise<UserProfile | null> {
   try {
     const sessionId = getSessionId();
@@ -110,9 +104,6 @@ export async function getProfile(): Promise<UserProfile | null> {
   }
 }
 
-/**
- * Delete the current user's profile
- */
 export async function deleteProfile(): Promise<void> {
   const sessionId = getSessionId();
   await apiFetch<void>(

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { House } from '../types';
+import { addHouse } from '../services/houseService';
 
 const exampleHouses: House[] = [
   { address: '123 Oak Street' },
@@ -17,9 +18,9 @@ function Houses() {
   const [formData, setFormData] = useState<House>(initialHouseForm);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [userHouses, setUserHouses] = useState<House[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const savedData = localStorage.getItem('userHouses');
-  const userHouses: House[] = savedData ? JSON.parse(savedData) : [];
   const houses = userHouses.length > 0 ? userHouses : exampleHouses;
 
   const handleTextChange = (field: keyof House) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -42,37 +43,42 @@ function Houses() {
     return true;
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage(null);
     
     if (!validateForm()) {
       return;
     }
-    
-    const updatedHouses = [...userHouses, formData];
-    localStorage.setItem('userHouses', JSON.stringify(updatedHouses));
-    setSaveMessage('Property added successfully.');
-    setFormData(initialHouseForm);
-    // Force re-render by reading fresh data
-    window.dispatchEvent(new Event('storage'));
+
+    setIsLoading(true);
+    try {
+      const newHouse = await addHouse(formData);
+      setUserHouses([...userHouses, newHouse]);
+      setSaveMessage('Property added successfully.');
+      setFormData(initialHouseForm);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to add property. Please try again.';
+      setErrorMessage(errorMsg);
+      console.error('Failed to add house:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDeleteHouse = (index: number) => {
     if (window.confirm('Are you sure you want to delete this property?')) {
       const updatedHouses = userHouses.filter((_, i) => i !== index);
-      localStorage.setItem('userHouses', JSON.stringify(updatedHouses));
+      setUserHouses(updatedHouses);
       setSaveMessage('Property deleted successfully.');
-      window.dispatchEvent(new Event('storage'));
     }
   };
 
   const handleDeleteAll = () => {
     if (window.confirm('Are you sure you want to delete all properties? This action cannot be undone.')) {
-      localStorage.removeItem('userHouses');
+      setUserHouses([]);
       setSaveMessage('All properties deleted successfully.');
       setFormData(initialHouseForm);
-      window.dispatchEvent(new Event('storage'));
     }
   };
 
@@ -104,7 +110,9 @@ function Houses() {
           </div>
 
           {errorMessage ? <p style={{ color: 'red' }}>{errorMessage}</p> : null}
-          <button type="submit">Add Property</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Adding...' : 'Add Property'}
+          </button>
         </form>
 
         {saveMessage ? <p style={{ color: 'green' }}>{saveMessage}</p> : null}
@@ -131,7 +139,9 @@ function Houses() {
 
       {userHouses.length > 0 && (
         <div>
-          <button type="button" onClick={handleDeleteAll}>Delete All Properties</button>
+          <button type="button" onClick={handleDeleteAll} disabled={isLoading}>
+            {isLoading ? 'Deleting...' : 'Delete All Properties'}
+          </button>
         </div>
       )}
     </div>
