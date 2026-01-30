@@ -2,6 +2,10 @@
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
+// Log configuration on startup
+console.log('[API] BASE_URL configured as:', BASE_URL);
+console.log('[API] VITE_API_BASE_URL env:', import.meta.env.VITE_API_BASE_URL);
+
 /**
  * Generate a session ID for the user
  */
@@ -45,14 +49,20 @@ export async function apiFetch<T>(
     },
   };
 
+  console.log(`[API] ${options.method || 'GET'} ${url}`);
+  console.log(`[API] Request config:`, config);
+
   try {
     const response = await fetch(url, config);
+    
+    console.log(`[API] Response status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
       const contentType = response.headers.get('content-type');
       
       if (contentType && contentType.includes('application/json')) {
         const errorData = await response.json();
+        console.error(`[API] Error response:`, errorData);
         
         // Handle validation errors (400)
         if (response.status === 400 && errorData.errors) {
@@ -81,15 +91,20 @@ export async function apiFetch<T>(
       return null as T;
     }
 
-    return response.json();
+    const data = await response.json();
+    console.log(`[API] Response data:`, data);
+    return data;
   } catch (error) {
     if (error instanceof ApiError) {
+      console.error(`[API] ApiError thrown:`, error);
       throw error;
     }
     
     // Network errors or other issues
+    const errorMsg = error instanceof Error ? error.message : 'Network error occurred';
+    console.error(`[API] Network error:`, errorMsg, error);
     throw new ApiError(
-      error instanceof Error ? error.message : 'Network error occurred'
+      `Failed to connect to backend (${BASE_URL}): ${errorMsg}`
     );
   }
 }

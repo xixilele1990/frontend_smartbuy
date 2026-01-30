@@ -1,14 +1,8 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { House } from '../types';
 import { addHouse } from '../services/houseService';
-
-const exampleHouses: House[] = [
-  { address: '123 Oak Street' },
-  { address: '456 Maple Avenue' },
-  { address: '789 Pine Road' }
-];
 
 const initialHouseForm: House = {
   address: ''
@@ -21,7 +15,30 @@ function Houses() {
   const [userHouses, setUserHouses] = useState<House[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const houses = userHouses.length > 0 ? userHouses : exampleHouses;
+  // Load houses from localStorage on mount
+  useEffect(() => {
+    const savedHouses = localStorage.getItem('userHouses');
+    if (savedHouses) {
+      try {
+        const parsedHouses = JSON.parse(savedHouses);
+        setUserHouses(parsedHouses);
+        console.log('[Houses] Loaded houses from localStorage:', parsedHouses);
+      } catch (error) {
+        console.error('[Houses] Failed to parse userHouses from localStorage:', error);
+      }
+    }
+  }, []);
+
+  // Save houses to localStorage whenever userHouses changes
+  useEffect(() => {
+    if (userHouses.length > 0) {
+      localStorage.setItem('userHouses', JSON.stringify(userHouses));
+      console.log('[Houses] Saved houses to localStorage:', userHouses);
+    } else {
+      localStorage.removeItem('userHouses');
+      console.log('[Houses] Removed userHouses from localStorage');
+    }
+  }, [userHouses]);
 
   const handleTextChange = (field: keyof House) => (event: ChangeEvent<HTMLInputElement>) => {
     setErrorMessage(null);
@@ -115,26 +132,25 @@ function Houses() {
           </button>
         </form>
 
-        {saveMessage ? <p style={{ color: 'green' }}>{saveMessage}</p> : null}
+        {saveMessage ? <p>{saveMessage}</p> : null}
       </div>
 
       <div>
         <h2>Properties List</h2>
         {userHouses.length === 0 ? (
-          <p><em>Example data</em></p>
-        ) : null}
-        <ul>
-          {houses.map((house, index) => (
-            <li key={index}>
-              <strong>{house.address}</strong>
-              {userHouses.length > 0 && (
-                <button type="button" onClick={() => handleDeleteHouse(index)} style={{ marginLeft: '10px' }}>
+          <p>No properties yet. Add your first property above to get started.</p>
+        ) : (
+          <ul>
+            {userHouses.map((house, index) => (
+              <li key={index}>
+                <strong>{house.address}</strong>
+                <button type="button" onClick={() => handleDeleteHouse(index)}>
                   Delete
                 </button>
-              )}
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {userHouses.length > 0 && (
