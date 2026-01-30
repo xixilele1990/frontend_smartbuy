@@ -81,6 +81,10 @@ src/
 - [x] Create houseService.ts with ATTOM API integration
 - [x] Update Houses.tsx to fetch real property data from ATTOM
 - [x] Add CORS support in backend (HouseController)
+- [x] Add scoringService.ts and integrate Score API
+- [x] Update Dashboard to manually calculate SmartScore on button click
+- [x] Display SmartScore results with user-entered addresses
+- [x] Handle ATTOM score errors with friendly messaging
 - [x] Implement loading states and error handling
 - [x] Clean up unused code and optimize imports
 - [x] Push all changes to GitHub
@@ -95,7 +99,6 @@ src/
 - [ ] Add property filtering and sorting options
 - [ ] Implement property comparison feature
 - [ ] Add CSS styling (design system)
-- [ ] Scoring service integration
 - [ ] User authentication/authorization
 
 ## Backend Integration
