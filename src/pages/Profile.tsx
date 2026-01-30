@@ -54,13 +54,14 @@ function Profile() {
     setSaveMessage(null);
     
     if (inputValue === '') {
-      setProfile((prev) => ({ ...prev, [field]: 0 }));
+      // Allow empty input
+      setProfile((prev) => ({ ...prev, [field]: '' as any }));
       return;
     }
     
     const numericValue = Number(inputValue);
     if (Number.isNaN(numericValue) || numericValue < 0) {
-      setProfile((prev) => ({ ...prev, [field]: 0 }));
+      setProfile((prev) => ({ ...prev, [field]: '' as any }));
     } else {
       setProfile((prev) => ({ ...prev, [field]: numericValue }));
     }
@@ -195,7 +196,6 @@ function Profile() {
             step={1000}
             value={profile.budget}
             onChange={handleNumberChange('budget')}
-            required
             disabled={isLoading}
           />
         </div>
@@ -211,7 +211,6 @@ function Profile() {
             value={profile.targetBedrooms}
             onChange={handleNumberChange('targetBedrooms')}
             placeholder="e.g. 3"
-            required
             disabled={isLoading}
           />
         </div>
@@ -227,7 +226,6 @@ function Profile() {
             value={profile.targetBathrooms}
             onChange={handleNumberChange('targetBathrooms')}
             placeholder="e.g. 2"
-            required
             disabled={isLoading}
           />
         </div>
