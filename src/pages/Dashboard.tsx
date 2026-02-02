@@ -16,6 +16,8 @@ function Dashboard() {
   const [isLoadingScores, setIsLoadingScores] = useState(false);
   const [scoringError, setScoringError] = useState<string | null>(null);
   const [expandedScoreIndex, setExpandedScoreIndex] = useState<number | null>(null);
+  const [selectedMode, setSelectedMode] = useState<string>('Balanced');
+  const modeOptions = ['Balanced', 'Budget Driven', 'Safety First', 'Education First'];
 
   // Load profile from backend API
   useEffect(() => {
@@ -78,6 +80,9 @@ function Dashboard() {
     setIsLoadingScores(true);
     setScoringError(null);
     try {
+      // Create a temporary profile with selected mode
+      const tempProfile = { ...profile, priorityMode: selectedMode };
+      
       // Convert houses to address format for backend
       const addresses = userHouses.map(house => {
         const parts = house.address.split(',').map(p => p.trim());
@@ -88,8 +93,8 @@ function Dashboard() {
         };
       });
       
-      // Call backend to score all addresses
-      const results = await batchScoreFromAddresses(profile, addresses);
+      // Call backend to score all addresses using selected mode
+      const results = await batchScoreFromAddresses(tempProfile, addresses);
       
       // Add original addresses to results for display
       const resultsWithAddresses = results.map((result, index) => ({
@@ -164,13 +169,31 @@ function Dashboard() {
           <div>
             <h3>SmartScore Rankings</h3>
             {userHouses.length > 0 && (
-              <button 
-                type="button" 
-                onClick={handleCalculateScores}
-                disabled={isLoadingScores || !profile}
-              >
-                {isLoadingScores ? 'Calculating...' : `Calculate SmartScore in ${profile.priorityMode} Mode`}
-              </button>
+              <div>
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ marginRight: '8px', fontWeight: '500' }}>Select Mode:</label>
+                  <select 
+                    value={selectedMode} 
+                    onChange={(e) => {
+                      setSelectedMode(e.target.value);
+                      setScoreResults([]);
+                    }}
+                    disabled={isLoadingScores}
+                    style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d2d2d7' }}
+                  >
+                    {modeOptions.map(mode => (
+                      <option key={mode} value={mode}>{mode}</option>
+                    ))}
+                  </select>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={handleCalculateScores}
+                  disabled={isLoadingScores || !profile}
+                >
+                  {isLoadingScores ? 'Calculating...' : `Calculate SmartScore in ${selectedMode} Mode`}
+                </button>
+              </div>
             )}
             {isLoadingScores ? (
               <p><em>Loading scoring results...</em></p>
