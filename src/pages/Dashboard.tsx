@@ -34,6 +34,13 @@ function Dashboard() {
     loadProfile();
   }, []);
 
+  // Sync selectedMode with profile's priorityMode
+  useEffect(() => {
+    if (profile) {
+      setSelectedMode(profile.priorityMode);
+    }
+  }, [profile]);
+
   // Monitor localStorage for house changes
   useEffect(() => {
     const loadUserHouses = () => {
