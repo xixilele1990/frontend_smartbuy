@@ -116,7 +116,7 @@ function Dashboard() {
   return (
     <div>
       <h1>SmartBuy Dashboard</h1>
-      <p>Welcome to SmartBuy ： Your Home Buying Decision Support System</p>
+      <p>Welcome to SmartBuy:Your Home Buying Decision Support System</p>
 
       {profile ? (
         <div>
@@ -128,11 +128,11 @@ function Dashboard() {
             </li>
             <li>Priority Mode: {profile.priorityMode}</li>
           </ul>
-          <p>
+          <div style={{ marginTop: '16px' }}>
             <Link to="/profile">
               <button>Edit Profile</button>
             </Link>
-          </p>
+          </div>
 
           <div>
             <h3>Your Properties</h3>
@@ -152,9 +152,11 @@ function Dashboard() {
                 ))}
               </ul>
             )}
-            <Link to="/houses">
-              <button>{userHouses.length === 0 ? 'Add Your First Property' : 'Manage Properties'}</button>
-            </Link>
+            <div style={{ marginTop: '16px' }}>
+              <Link to="/houses">
+                <button>{userHouses.length === 0 ? 'Add Your First Property' : 'Manage Properties'}</button>
+              </Link>
+            </div>
           </div>
 
           <div>
@@ -165,7 +167,7 @@ function Dashboard() {
                 onClick={handleCalculateScores}
                 disabled={isLoadingScores || !profile}
               >
-                {isLoadingScores ? 'Calculating...' : 'Calculate SmartScore'}
+                {isLoadingScores ? 'Calculating...' : `Calculate SmartScore in ${profile.priorityMode} Mode`}
               </button>
             )}
             {isLoadingScores ? (
