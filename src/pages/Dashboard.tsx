@@ -15,6 +15,7 @@ function Dashboard() {
   const [scoreResults, setScoreResults] = useState<ScoreResultWithAddress[]>([]);
   const [isLoadingScores, setIsLoadingScores] = useState(false);
   const [scoringError, setScoringError] = useState<string | null>(null);
+  const [expandedScoreIndex, setExpandedScoreIndex] = useState<number | null>(null);
 
   // Load profile from backend API
   useEffect(() => {
@@ -97,6 +98,7 @@ function Dashboard() {
       }));
       
       setScoreResults(resultsWithAddresses);
+      setExpandedScoreIndex(null);
       setScoringError(null);
     } catch (error) {
       console.error('[Dashboard.handleCalculateScores] Caught error:', error);
@@ -183,9 +185,46 @@ function Dashboard() {
               <ol>
                 {scoreResults.map((result, index) => (
                   <li key={index}>
-                    <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong> - Score: <strong>{result.totalScore}/100</strong>
-                    {' '}
-                    <button type="button" onClick={() => {}}>Show Details</button>
+                    <div className="score-row">
+                      <div className="score-main">
+                        <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong>
+                        <span>Score: <strong>{result.totalScore}/100</strong></span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setExpandedScoreIndex(prev => (prev === index ? null : index));
+                        }}
+                      >
+                        {expandedScoreIndex === index ? 'Hide Details' : 'Show Details'}
+                      </button>
+                    </div>
+                    {expandedScoreIndex === index ? (
+                      <div className="score-details">
+                        {result.dimensions && result.dimensions.length > 0 ? (
+                          <ul className="score-dimensions">
+                            {result.dimensions.map((dimension) => (
+                              <li key={dimension.name}>
+                                <span>{dimension.name}</span>
+                                <strong>{dimension.score}</strong>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="score-summary">
+                            Score breakdown isn’t available from the backend yet.
+                          </p>
+                        )}
+                        {result.summary ? <p className="score-summary">{result.summary}</p> : null}
+                        {result.warnings && result.warnings.length > 0 ? (
+                          <ul className="score-warnings">
+                            {result.warnings.map((warning, warningIndex) => (
+                              <li key={warningIndex}>{warning}</li>
+                            ))}
+                          </ul>
+                        ) : null}
+                      </div>
+                    ) : null}
                   </li>
                 ))}
               </ol>
