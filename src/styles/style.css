@@ -613,10 +613,9 @@ footer p {
 
 .profile-stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-md);
-  position: relative;
-  z-index: 1;
+  align-items: stretch;
 }
 
 .stat-item {
@@ -624,15 +623,11 @@ footer p {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  padding: 30px var(--spacing-md);
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: all 0.2s ease;
   height: 140px;
-  flex: 1;
-  min-width: 0;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0 !important;
+  position: relative;
+  padding: var(--spacing-sm);
   box-sizing: border-box;
 }
 

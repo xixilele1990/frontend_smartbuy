@@ -139,7 +139,7 @@ function Dashboard() {
           <div>
             <div className="profile-summary-card-premium">
               <div className="profile-header-premium">
-                <span className="card-label">PROFILE SUMMARY CARD</span>
+                <span className="card-label">PROFILE SUMMARY </span>
                 <Link to="/profile" className="edit-profile-btn-premium">
                   Edit Profile
                 </Link>
