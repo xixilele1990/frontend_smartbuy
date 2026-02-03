@@ -89,7 +89,7 @@ function Dashboard() {
     setScoringError(null);
     try {
       // Create a temporary profile with selected mode
-      const tempProfile = { ...profile, priorityMode: selectedMode };
+      const tempProfile: UserProfile = { ...profile, priorityMode: selectedMode as import('../types').PriorityMode };
 
       // Convert houses to address format for backend
       const addresses = userHouses.map(house => {
