@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { PriorityMode, UserProfile } from '../types';
 import { saveProfile, getProfile, deleteProfile } from '../services/profileService';
 import { ApiError } from '../services/api';
+import ConfirmDialog from '../components/ConfirmDialog';
+import Header from '../components/Header';
 
 const priorityModes: PriorityMode[] = ['Balanced', 'Budget Driven', 'Safety First', 'Education First'];
 
@@ -23,6 +25,19 @@ function Profile() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const navigate = useNavigate();
+
+  // Confirmation dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => { }
+  });
 
   // Load profile from API on mount
   useEffect(() => {
@@ -52,13 +67,13 @@ function Profile() {
     const inputValue = event.target.value;
     setErrorMessage(null);
     setSaveMessage(null);
-    
+
     if (inputValue === '') {
       // Allow empty input
       setProfile((prev) => ({ ...prev, [field]: '' as any }));
       return;
     }
-    
+
     const numericValue = Number(inputValue);
     if (Number.isNaN(numericValue) || numericValue < 0) {
       setProfile((prev) => ({ ...prev, [field]: '' as any }));
@@ -78,27 +93,27 @@ function Profile() {
       setErrorMessage('Please select a valid Priority Mode.');
       return false;
     }
-    
+
     if (profile.budget < 0) {
       setErrorMessage('Budget cannot be negative.');
       return false;
     }
-    
+
     if (profile.targetBedrooms < 0) {
       setErrorMessage('Target Bedrooms cannot be negative.');
       return false;
     }
-    
+
     if (profile.targetBathrooms < 0) {
       setErrorMessage('Target Bathrooms cannot be negative.');
       return false;
     }
-    
+
     if (profile.budget === 0 && profile.targetBedrooms === 0 && profile.targetBathrooms === 0) {
       setErrorMessage('Please fill in at least some profile information.');
       return false;
     }
-    
+
     return true;
   };
 
@@ -106,18 +121,18 @@ function Profile() {
     event.preventDefault();
     setErrorMessage(null);
     setSaveMessage(null);
-    
+
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
       const savedProfile = await saveProfile(profile);
       setProfile(savedProfile);
       setIsExampleData(false);
-      setSaveMessage('✅ Profile saved successfully to server.');
+      setSaveMessage('✅ Profile saved successfully.');
       console.log('Profile submitted', savedProfile);
     } catch (error) {
       if (error instanceof ApiError) {
@@ -139,30 +154,34 @@ function Profile() {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
-      return;
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Profile',
+      message: 'Are you sure you want to delete your profile? This action cannot be undone.',
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
+        setIsLoading(true);
 
-    setIsLoading(true);
-    
-    try {
-      await deleteProfile();
-      setProfile(initialProfile);
-      setIsExampleData(true);
-      setSaveMessage('Profile deleted successfully from server.');
-      setTimeout(() => {
-        navigate('/');
-      }, 1500);
-    } catch (error) {
-      if (error instanceof ApiError) {
-        setErrorMessage(error.message || 'Failed to delete profile.');
-      } else {
-        setErrorMessage('Network error. Please try again.');
+        try {
+          await deleteProfile();
+          setProfile(initialProfile);
+          setIsExampleData(true);
+          setSaveMessage('Profile deleted successfully.');
+          setTimeout(() => {
+            navigate('/');
+          }, 1500);
+        } catch (error) {
+          if (error instanceof ApiError) {
+            setErrorMessage(error.message || 'Failed to delete profile.');
+          } else {
+            setErrorMessage('Network error. Please try again.');
+          }
+          console.error('Failed to delete profile:', error);
+        } finally {
+          setIsLoading(false);
+        }
       }
-      console.error('Failed to delete profile:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   if (isFetching) {
@@ -176,102 +195,114 @@ function Profile() {
 
   return (
     <div>
-      <div>
-        <Link to="/">
-          <button type="button">← Back to Dashboard</button>
-        </Link>
-      </div>
+      <Header />
+      <div className="page-content">
+        <h1>Buyer Profile</h1>
+        <p>Configure your home buying preferences. Data is saved to the server.</p>
 
-      <h1>Buyer Profile</h1>
-      <p>Configure your home buying preferences. Data is saved to the server.</p>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="budget">Max Home Budget ($)</label>
+            <input
+              id="budget"
+              name="budget"
+              type="number"
+              min={0}
+              step={1000}
+              value={profile.budget}
+              onChange={handleNumberChange('budget')}
+              disabled={isLoading}
+            />
+          </div>
 
-      <form onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="targetBedrooms">Target Bedrooms</label>
+            <input
+              id="targetBedrooms"
+              name="targetBedrooms"
+              type="number"
+              min={0}
+              step={1}
+              value={profile.targetBedrooms}
+              onChange={handleNumberChange('targetBedrooms')}
+              placeholder="e.g. 3"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="targetBathrooms">Target Bathrooms</label>
+            <input
+              id="targetBathrooms"
+              name="targetBathrooms"
+              type="number"
+              min={0}
+              step={0.5}
+              value={profile.targetBathrooms}
+              onChange={handleNumberChange('targetBathrooms')}
+              placeholder="e.g. 2"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="priorityMode">Priority Mode</label>
+            <select
+              id="priorityMode"
+              name="priorityMode"
+              value={profile.priorityMode}
+              onChange={handlePriorityChange}
+              required
+              disabled={isLoading}
+            >
+              {priorityModes.map((mode) => (
+                <option key={mode} value={mode}>
+                  {mode}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {errorMessage ? <p style={{ color: 'red' }}>❌ {errorMessage}</p> : null}
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Saving...' : 'Save Profile'}
+          </button>
+        </form>
+
+        {saveMessage ? <p style={{ color: 'green' }}>{saveMessage}</p> : null}
+
         <div>
-          <label htmlFor="budget">Max Home Budget ($)</label>
-          <input
-            id="budget"
-            name="budget"
-            type="number"
-            min={0}
-            step={1000}
-            value={profile.budget}
-            onChange={handleNumberChange('budget')}
-            disabled={isLoading}
-          />
+          <button type="button" onClick={handleDelete} disabled={isLoading}>
+            {isLoading ? 'Deleting...' : 'Delete Profile'}
+          </button>
         </div>
 
         <div>
-          <label htmlFor="targetBedrooms">Target Bedrooms</label>
-          <input
-            id="targetBedrooms"
-            name="targetBedrooms"
-            type="number"
-            min={0}
-            step={1}
-            value={profile.targetBedrooms}
-            onChange={handleNumberChange('targetBedrooms')}
-            placeholder="e.g. 3"
-            disabled={isLoading}
-          />
+          <h3>Profile preview</h3>
+          {isExampleData && <p><em>Example data (not saved to server)</em></p>}
+          <div className="profile-preview-grid">
+            <div className="preview-item">
+              <span className="preview-label">Budget</span>
+              <span className="preview-value">${profile.budget.toLocaleString('en-US')}</span>
+            </div>
+            <div className="preview-item">
+              <span className="preview-label">Beds / Baths</span>
+              <span className="preview-value">{profile.targetBedrooms} / {profile.targetBathrooms}</span>
+            </div>
+            <div className="preview-item">
+              <span className="preview-label">Priority</span>
+              <span className="preview-value">{profile.priorityMode}</span>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="targetBathrooms">Target Bathrooms</label>
-          <input
-            id="targetBathrooms"
-            name="targetBathrooms"
-            type="number"
-            min={0}
-            step={0.5}
-            value={profile.targetBathrooms}
-            onChange={handleNumberChange('targetBathrooms')}
-            placeholder="e.g. 2"
-            disabled={isLoading}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="priorityMode">Priority Mode</label>
-          <select
-            id="priorityMode"
-            name="priorityMode"
-            value={profile.priorityMode}
-            onChange={handlePriorityChange}
-            required
-            disabled={isLoading}
-          >
-            {priorityModes.map((mode) => (
-              <option key={mode} value={mode}>
-                {mode}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {errorMessage ? <p style={{ color: 'red' }}>❌ {errorMessage}</p> : null}
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Saving...' : 'Save Profile'}
-        </button>
-      </form>
-
-      {saveMessage ? <p style={{ color: 'green' }}>{saveMessage}</p> : null}
-
-      <div>
-        <button type="button" onClick={handleDelete} disabled={isLoading}>
-          {isLoading ? 'Deleting...' : 'Delete Profile'}
-        </button>
-      </div>
-
-      <div>
-        <h3>Profile preview</h3>
-        {isExampleData ? <p><em>Example data (not saved to server)</em></p> : <p><em>Data from server ✅</em></p>}
-        <ul>
-          <li>Budget: ${profile.budget.toLocaleString('en-US')}</li>
-          <li>
-            Beds/Baths: {profile.targetBedrooms} / {profile.targetBathrooms}
-          </li>
-          <li>Priority: {profile.priorityMode}</li>
-        </ul>
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+        />
       </div>
     </div>
   );

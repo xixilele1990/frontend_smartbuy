@@ -1,8 +1,9 @@
-import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { House } from '../types';
 import { addHouse } from '../services/houseService';
+import ConfirmDialog from '../components/ConfirmDialog';
+import Header from '../components/Header';
 
 const initialHouseForm: House = {
   address: ''
@@ -14,6 +15,19 @@ function Houses() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [userHouses, setUserHouses] = useState<House[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Confirmation dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => { }
+  });
 
   // Load houses from localStorage on mount
   useEffect(() => {
@@ -51,19 +65,19 @@ function Houses() {
       setErrorMessage('Please enter a property address.');
       return false;
     }
-    
+
     if (formData.address.trim().length < 3) {
       setErrorMessage('Property address must be at least 3 characters long.');
       return false;
     }
-    
+
     return true;
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage(null);
-    
+
     if (!validateForm()) {
       return;
     }
@@ -84,82 +98,99 @@ function Houses() {
   };
 
   const handleDeleteHouse = (index: number) => {
-    if (window.confirm('Are you sure you want to delete this property?')) {
-      const updatedHouses = userHouses.filter((_, i) => i !== index);
-      setUserHouses(updatedHouses);
-      setSaveMessage('Property deleted successfully.');
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Property',
+      message: 'Are you sure you want to delete this property?',
+      onConfirm: () => {
+        const updatedHouses = userHouses.filter((_, i) => i !== index);
+        setUserHouses(updatedHouses);
+        setSaveMessage('Property deleted successfully.');
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
+      }
+    });
   };
 
   const handleDeleteAll = () => {
-    if (window.confirm('Are you sure you want to delete all properties? This action cannot be undone.')) {
-      setUserHouses([]);
-      setSaveMessage('All properties deleted successfully.');
-      setFormData(initialHouseForm);
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete All Properties',
+      message: 'Are you sure you want to delete all properties? This action cannot be undone.',
+      onConfirm: () => {
+        setUserHouses([]);
+        setSaveMessage('All properties deleted successfully.');
+        setFormData(initialHouseForm);
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
+      }
+    });
   };
 
   return (
     <div>
-      <div>
-        <Link to="/">
-          <button type="button">← Back to Dashboard</button>
-        </Link>
-      </div>
+      <Header />
+      <div className="page-content">
+        <h1>My Properties</h1>
+        <p>View and compare all your saved properties.</p>
 
-      <h1>My Properties</h1>
-      <p>View and compare all your saved properties.</p>
-
-      <div>
-        <h2>Add New Property</h2>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="address">Address</label>
-            <input
-              id="address"
-              name="address"
-              type="text"
-              value={formData.address}
-              onChange={handleTextChange('address')}
-              placeholder="e.g. 123 Main Street"
-              required
-            />
-          </div>
-
-          {errorMessage ? <p style={{ color: 'red' }}>{errorMessage}</p> : null}
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Adding...' : 'Add Property'}
-          </button>
-        </form>
-
-        {saveMessage ? <p>{saveMessage}</p> : null}
-      </div>
-
-      <div>
-        <h2>Properties List</h2>
-        {userHouses.length === 0 ? (
-          <p>No properties yet. Add your first property above to get started.</p>
-        ) : (
-          <ul>
-            {userHouses.map((house, index) => (
-              <li key={index}>
-                <strong>{house.address}</strong>
-                <button type="button" onClick={() => handleDeleteHouse(index)}>
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {userHouses.length > 0 && (
         <div>
-          <button type="button" onClick={handleDeleteAll} disabled={isLoading}>
-            {isLoading ? 'Deleting...' : 'Delete All Properties'}
-          </button>
+          <h2>Add New Property</h2>
+          <form onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="address">Address</label>
+              <input
+                id="address"
+                name="address"
+                type="text"
+                value={formData.address}
+                onChange={handleTextChange('address')}
+                placeholder="e.g. 123 Main Street"
+                required
+              />
+            </div>
+
+            {errorMessage ? <p style={{ color: 'red' }}>{errorMessage}</p> : null}
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? 'Adding...' : 'Add Property'}
+            </button>
+          </form>
+
+          {saveMessage ? <p>{saveMessage}</p> : null}
         </div>
-      )}
+
+        <div>
+          <h2>Properties List</h2>
+          {userHouses.length === 0 ? (
+            <p>No properties yet. Add your first property above to get started.</p>
+          ) : (
+            <ul>
+              {userHouses.map((house, index) => (
+                <li key={index}>
+                  <strong>{house.address}</strong>
+                  <button type="button" onClick={() => handleDeleteHouse(index)}>
+                    Delete
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {userHouses.length > 0 && (
+          <div>
+            <button type="button" onClick={handleDeleteAll} disabled={isLoading}>
+              {isLoading ? 'Deleting...' : 'Delete All Properties'}
+            </button>
+          </div>
+        )}
+
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+        />
+      </div>
     </div>
   );
 }

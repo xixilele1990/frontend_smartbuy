@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import type { UserProfile, House } from '../types';
 import { getProfile } from '../services/profileService';
 import { batchScoreFromAddresses, type ScoreResponse } from '../services/scoringService';
+import Header from '../components/Header';
 
 // Extended score response with display address
 interface ScoreResultWithAddress extends ScoreResponse {
@@ -36,7 +37,7 @@ function Dashboard() {
     const loadUserHouses = () => {
       const savedHouses = localStorage.getItem('userHouses');
       const newHouses = savedHouses ? JSON.parse(savedHouses) : [];
-      
+
       // Only update state if data actually changed (compare by JSON string)
       setUserHouses(prevHouses => {
         const prevJson = JSON.stringify(prevHouses);
@@ -68,7 +69,7 @@ function Dashboard() {
       setScoringError('Please set up your profile first.');
       return;
     }
-    
+
     if (userHouses.length === 0) {
       setScoringError('Please add properties first.');
       return;
@@ -86,16 +87,16 @@ function Dashboard() {
           originalAddress: house.address, // Keep original for display
         };
       });
-      
+
       // Call backend to score all addresses
       const results = await batchScoreFromAddresses(profile, addresses);
-      
+
       // Add original addresses to results for display
       const resultsWithAddresses = results.map((result, index) => ({
         ...result,
         displayAddress: addresses[index]?.originalAddress || result.house?.address || 'Unknown Address'
       }));
-      
+
       setScoreResults(resultsWithAddresses);
       setScoringError(null);
     } catch (error) {
@@ -115,94 +116,130 @@ function Dashboard() {
 
   return (
     <div>
-      <h1>SmartBuy Dashboard</h1>
-      <p>Welcome to SmartBuy:Your Home Buying Decision Support System</p>
+      <Header />
+      <div className="page-content">
+        <h1>SmartBuy Dashboard</h1>
+        <p>Welcome to SmartBuy:Your Home Buying Decision Support System</p>
 
-      {profile ? (
-        <div>
-          <h2>Your Profile Summary</h2>
-          <ul>
-            <li>Budget: ${profile.budget.toLocaleString('en-US')}</li>
-            <li>
-              Beds/Baths: {profile.targetBedrooms} / {profile.targetBathrooms}
-            </li>
-            <li>Priority Mode: {profile.priorityMode}</li>
-          </ul>
-          <div style={{ marginTop: '16px' }}>
-            <Link to="/profile">
-              <button>Edit Profile</button>
-            </Link>
-          </div>
-
+        {profile ? (
           <div>
-            <h3>Your Properties</h3>
-            {userHouses.length === 0 ? (
-              <div>
-                <p>You haven't added any properties yet. Start by adding your first property to see how it scores!</p>
+            <div className="profile-summary-card-premium">
+              <div className="profile-header-premium">
+                <div className="budget-display">
+                  <span className="budget-label">Profile Summary Card</span>
+                  <h2 className="budget-amount">${profile.budget.toLocaleString('en-US')}</h2>
+                </div>
+                <Link to="/profile">
+                  <button type="button" className="edit-profile-btn-premium">✏️ Edit Profile</button>
+                </Link>
               </div>
-            ) : (
-              <ul>
-                {userHouses.map((house, index) => (
-                  <li key={index}>
-                    <strong>{house.address}</strong>
-                    {house.bedrooms && house.bathrooms && house.squareFeet ? (
-                      <span> - {house.bedrooms} bed, {house.bathrooms} bath, {house.squareFeet} sqft</span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div style={{ marginTop: '16px' }}>
-              <Link to="/houses">
-                <button>{userHouses.length === 0 ? 'Add Your First Property' : 'Manage Properties'}</button>
-              </Link>
+
+              <div className="profile-stats-grid">
+                <div className="stat-item">
+                  <svg className="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 12V18H4V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M2 18H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <rect x="4" y="7" width="16" height="5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="7" cy="9.5" r="1.5" fill="currentColor" />
+                    <circle cx="17" cy="9.5" r="1.5" fill="currentColor" />
+                  </svg>
+                  <span className="stat-text">{profile.targetBedrooms} Bedrooms</span>
+                </div>
+
+                <div className="stat-item">
+                  <svg className="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 6C7 5.44772 7.44772 5 8 5H16C16.5523 5 17 5.44772 17 6V12" stroke="currentColor" strokeWidth="2" />
+                    <path d="M4 12H20V16C20 16.5523 19.5523 17 19 17H5C4.44772 17 4 16.5523 4 16V12Z" stroke="currentColor" strokeWidth="2" />
+                    <path d="M2 17V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M22 17V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <circle cx="17" cy="6" r="0.5" fill="currentColor" />
+                    <path d="M17 6V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                  <span className="stat-text">{profile.targetBathrooms} Bathrooms</span>
+                </div>
+
+                <div className="stat-item">
+                  <svg className="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="12" cy="12" r="2" fill="currentColor" />
+                    <line x1="12" y1="2" x2="12" y2="4" stroke="currentColor" strokeWidth="2" />
+                  </svg>
+                  <span className="stat-text">{profile.priorityMode}</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3>Your Properties</h3>
+              {userHouses.length === 0 ? (
+                <div>
+                  <p>You haven't added any properties yet. Start by adding your first property to see how it scores!</p>
+                </div>
+              ) : (
+                <ul>
+                  {userHouses.map((house, index) => (
+                    <li key={index}>
+                      <strong>{house.address}</strong>
+                      {house.bedrooms && house.bathrooms && house.squareFeet ? (
+                        <span> - {house.bedrooms} bed, {house.bathrooms} bath, {house.squareFeet} sqft</span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div style={{ marginTop: '16px' }}>
+                <Link to="/houses">
+                  <button>{userHouses.length === 0 ? 'Add Your First Property' : 'Manage Properties'}</button>
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <h3>SmartScore Rankings</h3>
+              {userHouses.length > 0 && (
+                <button
+                  className="calculate-button"
+                  onClick={handleCalculateScores}
+                  disabled={isLoadingScores || !profile}
+                >
+                  {isLoadingScores ? 'Calculating...' : `🎯 Calculate SmartScore in ${profile.priorityMode} Mode`}
+                </button>
+              )}
+              {isLoadingScores ? (
+                <p><em>Loading scoring results...</em></p>
+              ) : scoringError ? (
+                <div>
+                  <p><strong>Unable to calculate scores:</strong></p>
+                  <p>{scoringError}</p>
+                </div>
+              ) : scoreResults.length === 0 ? (
+                <p>Ready to see how your properties score? Click the button above to calculate SmartScores for all your properties.</p>
+              ) : (
+                <ol>
+                  {scoreResults.map((result, index) => (
+                    <li key={index}>
+                      <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong> - Score: <strong>{result.totalScore}/100</strong>
+                      {' '}
+                      <button type="button" onClick={() => { }}>Show Details</button>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </div>
           </div>
-
+        ) : (
           <div>
-            <h3>SmartScore Rankings</h3>
-            {userHouses.length > 0 && (
-              <button 
-                type="button" 
-                onClick={handleCalculateScores}
-                disabled={isLoadingScores || !profile}
-              >
-                {isLoadingScores ? 'Calculating...' : `Calculate SmartScore in ${profile.priorityMode} Mode`}
-              </button>
-            )}
-            {isLoadingScores ? (
-              <p><em>Loading scoring results...</em></p>
-            ) : scoringError ? (
-              <div>
-                <p><strong>Unable to calculate scores:</strong></p>
-                <p>{scoringError}</p>
-              </div>
-            ) : scoreResults.length === 0 ? (
-              <p>Ready to see how your properties score? Click the button above to calculate SmartScores for all your properties.</p>
-            ) : (
-              <ol>
-                {scoreResults.map((result, index) => (
-                  <li key={index}>
-                    <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong> - Score: <strong>{result.totalScore}/100</strong>
-                    {' '}
-                    <button type="button" onClick={() => {}}>Show Details</button>
-                  </li>
-                ))}
-              </ol>
-            )}
+            <h2>Get Started</h2>
+            <p>Please set up your profile to customize your home buying preferences.</p>
+            <p>
+              <Link to="/profile">
+                <button>Set Up Profile</button>
+              </Link>
+            </p>
           </div>
-        </div>
-      ) : (
-        <div>
-          <h2>Get Started</h2>
-          <p>Please set up your profile to customize your home buying preferences.</p>
-          <p>
-            <Link to="/profile">
-              <button>Set Up Profile</button>
-            </Link>
-          </p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
