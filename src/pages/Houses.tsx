@@ -8,6 +8,55 @@ const initialHouseForm: House = {
   address: ''
 };
 
+// School field formatting
+const FIELD_NAME_MAP: { [key: string]: string } = {
+  'InstitutionName': 'School Name',
+  'InstitutionType': 'Type',
+  'GradeRange': 'Grades',
+  'Distance': 'Distance',
+  'Rating': 'Rating',
+  'StudentCount': 'Students',
+  'TeacherCount': 'Teachers',
+  'TeacherStudentRatio': 'Teacher-Student Ratio',
+  'District': 'District',
+  'Address': 'Address',
+  'Phone': 'Phone',
+  'Website': 'Website',
+};
+
+const formatFieldName = (key: string): string => FIELD_NAME_MAP[key] || key;
+
+// Common styles
+const STYLES = {
+  cardBox: (borderColor = '#e0e0e0'): React.CSSProperties => ({
+    backgroundColor: '#fff',
+    padding: '10px',
+    borderRadius: '6px',
+    border: `1px solid ${borderColor}`,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px'
+  }),
+  sectionLabel: {
+    fontSize: '12px' as const,
+    fontWeight: '600' as const,
+    color: '#666',
+    marginBottom: '12px',
+    textTransform: 'uppercase' as const
+  },
+  fieldLabel: {
+    fontSize: '12px' as const,
+    fontWeight: '500' as const,
+    color: '#666'
+  },
+  fieldValue: {
+    fontSize: '14px' as const,
+    fontWeight: '600' as const,
+    color: '#333',
+    wordBreak: 'break-word' as const
+  }
+};
+
 function Houses() {
   const [formData, setFormData] = useState<House>(initialHouseForm);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
@@ -17,6 +66,8 @@ function Houses() {
   const [selectedHouseDetails, setSelectedHouseDetails] = useState<HouseFromAttom | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
+  const [mapCoordinates, setMapCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [isLoadingMap, setIsLoadingMap] = useState(false);
 
   // Load houses from localStorage on mount
   useEffect(() => {
@@ -106,10 +157,32 @@ function Houses() {
     setIsLoadingDetails(true);
     setDetailsError(null);
     setSelectedHouseDetails(null);
+    setMapCoordinates(null);
     
     try {
       const details = await getHouseDetails(address);
       setSelectedHouseDetails(details);
+      
+      // Get coordinates from Nominatim
+      setIsLoadingMap(true);
+      const fullAddress = `${details.address1}, ${details.address2}`;
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1`
+        );
+        const results = await response.json();
+        
+        if (results.length > 0) {
+          setMapCoordinates({
+            lat: parseFloat(results[0].lat),
+            lng: parseFloat(results[0].lon)
+          });
+        }
+      } catch (mapError) {
+        console.error('Failed to get map coordinates:', mapError);
+      } finally {
+        setIsLoadingMap(false);
+      }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to load details';
       setDetailsError(errorMsg);
@@ -121,6 +194,7 @@ function Houses() {
   const handleCloseDetails = () => {
     setSelectedHouseDetails(null);
     setDetailsError(null);
+    setMapCoordinates(null);
   };
 
   return (
@@ -237,78 +311,264 @@ function Houses() {
               ×
             </button>
 
-            <h2>Property Details</h2>
+            <h2 style={{ marginBottom: '20px', color: '#333' }}>Property Details</h2>
             
-            {isLoadingDetails && <p>Loading details...</p>}
+            {isLoadingDetails && (
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#666' }}>
+                <p style={{ fontSize: '18px' }}>Loading property details...</p>
+              </div>
+            )}
             
             {detailsError && (
-              <div style={{ color: 'red' }}>
-                <p><strong>Error:</strong></p>
+              <div style={{ 
+                backgroundColor: '#fee',
+                border: '1px solid #fcc',
+                borderRadius: '6px',
+                padding: '16px',
+                marginBottom: '20px',
+                color: '#c33'
+              }}>
+                <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>Unable to Load Details</p>
                 <p>{detailsError}</p>
               </div>
             )}
             
             {selectedHouseDetails && (
               <div>
-                <div style={{ marginBottom: '16px' }}>
-                  <strong>Address:</strong>
-                  <p>{selectedHouseDetails.address1}, {selectedHouseDetails.address2}</p>
+                {/* Address Section */}
+                <div style={{ 
+                  backgroundColor: '#f8f8f8',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  marginBottom: '20px'
+                }}>
+                  <p style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>ADDRESS</p>
+                  <p style={{ fontSize: '18px', fontWeight: '600', color: '#333' }}>
+                    {selectedHouseDetails.address1}
+                  </p>
+                  <p style={{ fontSize: '14px', color: '#666' }}>
+                    {selectedHouseDetails.address2}
+                  </p>
                 </div>
-                
-                {selectedHouseDetails.beds && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <strong>Bedrooms:</strong> {selectedHouseDetails.beds}
+
+                                                {/* Location Map */}
+                {(() => {
+                  if (isLoadingMap) {
+                    return (
+                      <div style={{ marginBottom: '20px', textAlign: 'center', color: '#999', padding: '20px' }}>
+                        Loading map...
+                      </div>
+                    );
+                  }
+                  
+                  if (mapCoordinates) {
+                    const bbox = `${mapCoordinates.lng - 0.01},${mapCoordinates.lat - 0.01},${mapCoordinates.lng + 0.01},${mapCoordinates.lat + 0.01}`;
+                    return (
+                      <div style={{ marginBottom: '20px' }}>
+                        <p style={{ fontSize: '12px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>LOCATION</p>
+                        <div style={{
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          border: '1px solid #ddd',
+                          height: '300px'
+                        }}>
+                          <iframe
+                            title="Property Location Map"
+                            width="100%"
+                            height="100%"
+                            style={{ border: 'none' }}
+                            src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${mapCoordinates.lat},${mapCoordinates.lng}`}
+                          />
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  return null;
+                })()}
+
+                {/* Property Features */}
+                <div style={{ marginBottom: '20px' }}>
+                  <p style={{ fontSize: '12px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>PROPERTY FEATURES</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    {selectedHouseDetails.beds && (
+                      <div style={{ 
+                        backgroundColor: '#f5f5f5',
+                        padding: '12px',
+                        borderRadius: '6px',
+                        textAlign: 'center'
+                      }}>
+                        <p style={{ fontSize: '24px', fontWeight: '600', color: '#007AFF' }}>
+                          {selectedHouseDetails.beds}
+                        </p>
+                        <p style={{ fontSize: '12px', color: '#666' }}>Bedrooms</p>
+                      </div>
+                    )}
+                    
+                    {selectedHouseDetails.bathsTotal && (
+                      <div style={{ 
+                        backgroundColor: '#f5f5f5',
+                        padding: '12px',
+                        borderRadius: '6px',
+                        textAlign: 'center'
+                      }}>
+                        <p style={{ fontSize: '24px', fontWeight: '600', color: '#007AFF' }}>
+                          {selectedHouseDetails.bathsTotal}
+                        </p>
+                        <p style={{ fontSize: '12px', color: '#666' }}>Bathrooms</p>
+                      </div>
+                    )}
+                    
+                    {selectedHouseDetails.roomsTotal && (
+                      <div style={{ 
+                        backgroundColor: '#f5f5f5',
+                        padding: '12px',
+                        borderRadius: '6px',
+                        textAlign: 'center'
+                      }}>
+                        <p style={{ fontSize: '24px', fontWeight: '600', color: '#007AFF' }}>
+                          {selectedHouseDetails.roomsTotal}
+                        </p>
+                        <p style={{ fontSize: '12px', color: '#666' }}>Total Rooms</p>
+                      </div>
+                    )}
                   </div>
-                )}
-                
-                {selectedHouseDetails.bathsTotal && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <strong>Bathrooms:</strong> {selectedHouseDetails.bathsTotal}
-                  </div>
-                )}
-                
-                {selectedHouseDetails.roomsTotal && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <strong>Total Rooms:</strong> {selectedHouseDetails.roomsTotal}
-                  </div>
-                )}
-                
+                </div>
+
+                {/* Financial Information */}
                 {selectedHouseDetails.avmValue && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <strong>Estimated Value:</strong> ${selectedHouseDetails.avmValue.toLocaleString('en-US')}
+                  <div style={{ 
+                    backgroundColor: '#f0f8ff',
+                    border: '1px solid #d0e8ff',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    marginBottom: '20px'
+                  }}>
+                    <p style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>ESTIMATED VALUE</p>
+                    <p style={{ fontSize: '24px', fontWeight: '600', color: '#007AFF' }}>
+                      ${selectedHouseDetails.avmValue.toLocaleString('en-US')}
+                    </p>
                   </div>
                 )}
-                
-                {selectedHouseDetails.crimeIndex !== undefined && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <strong>Crime Index:</strong> {selectedHouseDetails.crimeIndex}
+
+                {/* Community Information */}
+                {(selectedHouseDetails.crimeIndex !== undefined || selectedHouseDetails.geoIdV4) && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <p style={{ fontSize: '12px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>COMMUNITY</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      {selectedHouseDetails.crimeIndex !== undefined && (
+                        <div style={{ 
+                          backgroundColor: '#fff3cd',
+                          border: '1px solid #ffc107',
+                          padding: '12px',
+                          borderRadius: '6px',
+                          textAlign: 'center'
+                        }}>
+                          <p style={{ fontSize: '18px', fontWeight: '600', color: '#ff9800' }}>
+                            {selectedHouseDetails.crimeIndex}
+                          </p>
+                          <p style={{ fontSize: '12px', color: '#666' }}>Crime Index</p>
+                        </div>
+                      )}
+                      
+                      {selectedHouseDetails.geoIdV4 && (
+                        <div style={{ 
+                          backgroundColor: '#f5f5f5',
+                          padding: '12px',
+                          borderRadius: '6px',
+                          textAlign: 'center'
+                        }}>
+                          <p style={{ fontSize: '12px', color: '#999', wordBreak: 'break-all' }}>
+                            {selectedHouseDetails.geoIdV4}
+                          </p>
+                          <p style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>Geo ID</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
-                
-                {selectedHouseDetails.attomId && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <strong>ATTOM ID:</strong> {selectedHouseDetails.attomId}
-                  </div>
-                )}
-                
-                {selectedHouseDetails.geoIdV4 && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <strong>Geo ID:</strong> {selectedHouseDetails.geoIdV4}
-                  </div>
-                )}
-                
+
+                {/* Schools Information */}
                 {selectedHouseDetails.schoolsJson && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <strong>Schools Data:</strong>
-                    <pre style={{ 
-                      backgroundColor: '#f5f5f5', 
-                      padding: '12px', 
-                      borderRadius: '4px',
-                      overflow: 'auto',
-                      fontSize: '12px'
+                  <div style={{ marginBottom: '20px' }}>
+                    <p style={STYLES.sectionLabel}>NEARBY SCHOOLS</p>
+                    <div style={{ 
+                      backgroundColor: '#f9f9f9',
+                      borderRadius: '8px',
+                      overflow: 'hidden'
                     }}>
-                      {JSON.stringify(JSON.parse(selectedHouseDetails.schoolsJson), null, 2)}
-                    </pre>
+                      {(() => {
+                        try {
+                          const schools = JSON.parse(selectedHouseDetails.schoolsJson);
+                          const schoolList = Array.isArray(schools) ? schools : [schools];
+                          
+                          if (schoolList.length === 0) {
+                            return <p style={{ padding: '12px', color: '#999' }}>No school data available</p>;
+                          }
+                          
+                          return (
+                            <div>
+                              {schoolList.map((school: any, index: number) => (
+                                <div 
+                                  key={index}
+                                  style={{
+                                    padding: '16px',
+                                    borderBottom: index < schoolList.length - 1 ? '1px solid #e8e8e8' : 'none'
+                                  }}
+                                >
+                                  <p style={{ 
+                                    fontSize: '16px', 
+                                    fontWeight: '700', 
+                                    color: '#1a1a1a',
+                                    margin: '0 0 14px 0'
+                                  }}>
+                                    {school.InstitutionName || 'School'}
+                                  </p>
+                                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                                    {Object.entries(school).map(([key, value]: [string, any]) => {
+                                      if (key === 'InstitutionName' || !value) return null;
+                                      
+                                      return (
+                                        <div key={key} style={STYLES.cardBox()}>
+                                          <span style={STYLES.fieldLabel}>
+                                            {formatFieldName(key)}
+                                          </span>
+                                          <span style={STYLES.fieldValue}>
+                                            {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        } catch (error) {
+                          return (
+                            <div style={{ padding: '12px' }}>
+                              <p style={{ fontSize: '12px', color: '#999', margin: '0 0 8px 0' }}>Error parsing schools data</p>
+                            </div>
+                          );
+                        }
+                      })()}
+                    </div>
+                  </div>
+                )}
+
+                {/* ATTOM ID */}
+                {selectedHouseDetails.attomId && (
+                  <div style={{ 
+                    backgroundColor: '#f5f5f5',
+                    padding: '12px',
+                    borderRadius: '6px',
+                    marginBottom: '20px'
+                  }}>
+                    <p style={{ fontSize: '11px', color: '#999', marginBottom: '4px' }}>ATTOM ID</p>
+                    <p style={{ fontSize: '12px', color: '#666', fontFamily: 'monospace' }}>
+                      {selectedHouseDetails.attomId}
+                    </p>
                   </div>
                 )}
               </div>
