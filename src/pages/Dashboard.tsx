@@ -141,7 +141,7 @@ function Dashboard() {
               <div className="profile-header-premium">
                 <span className="card-label">PROFILE SUMMARY CARD</span>
                 <Link to="/profile" className="edit-profile-btn-premium">
-                  ✏️ Edit Profile
+                  Edit Profile
                 </Link>
               </div>
 
