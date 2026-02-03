@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import type { UserProfile, House } from '../types';
 import { getProfile } from '../services/profileService';
 import { batchScoreFromAddresses, type ScoreResponse } from '../services/scoringService';
+import Header from '../components/Header';
 
 // Extended score response with display address
 interface ScoreResultWithAddress extends ScoreResponse {
@@ -46,7 +47,7 @@ function Dashboard() {
     const loadUserHouses = () => {
       const savedHouses = localStorage.getItem('userHouses');
       const newHouses = savedHouses ? JSON.parse(savedHouses) : [];
-      
+
       // Only update state if data actually changed (compare by JSON string)
       setUserHouses(prevHouses => {
         const prevJson = JSON.stringify(prevHouses);
@@ -78,7 +79,7 @@ function Dashboard() {
       setScoringError('Please set up your profile first.');
       return;
     }
-    
+
     if (userHouses.length === 0) {
       setScoringError('Please add properties first.');
       return;
@@ -89,7 +90,7 @@ function Dashboard() {
     try {
       // Create a temporary profile with selected mode
       const tempProfile = { ...profile, priorityMode: selectedMode };
-      
+
       // Convert houses to address format for backend
       const addresses = userHouses.map(house => {
         const parts = house.address.split(',').map(p => p.trim());
@@ -99,16 +100,16 @@ function Dashboard() {
           originalAddress: house.address, // Keep original for display
         };
       });
-      
+
       // Call backend to score all addresses using selected mode
       const results = await batchScoreFromAddresses(tempProfile, addresses);
-      
+
       // Add original addresses to results for display
       const resultsWithAddresses = results.map((result, index) => ({
         ...result,
         displayAddress: addresses[index]?.originalAddress || result.house?.address || 'Unknown Address'
       }));
-      
+
       setScoreResults(resultsWithAddresses);
       setExpandedScoreIndex(null);
       setScoringError(null);
@@ -129,149 +130,168 @@ function Dashboard() {
 
   return (
     <div>
-      <h1>SmartBuy Dashboard</h1>
-      <p>Welcome to SmartBuy:Your Home Buying Decision Support System</p>
+      <Header />
+      <div className="page-content">
+        <h1>SmartBuy Dashboard</h1>
+        <p>Welcome to SmartBuy:Your Home Buying Decision Support System</p>
 
-      {profile ? (
-        <div>
-          <h2>Your Profile Summary</h2>
-          <ul>
-            <li>Budget: ${profile.budget.toLocaleString('en-US')}</li>
-            <li>
-              Beds/Baths: {profile.targetBedrooms} / {profile.targetBathrooms}
-            </li>
-            <li>Priority Mode: {profile.priorityMode}</li>
-          </ul>
-          <div style={{ marginTop: '16px' }}>
-            <Link to="/profile">
-              <button>Edit Profile</button>
-            </Link>
-          </div>
-
+        {profile ? (
           <div>
-            <h3>Your Properties</h3>
-            {userHouses.length === 0 ? (
-              <div>
-                <p>You haven't added any properties yet. Start by adding your first property to see how it scores!</p>
+            <div className="profile-summary-card-premium">
+              <div className="profile-header-premium">
+                <span className="card-label">PROFILE SUMMARY CARD</span>
+                <Link to="/profile" className="edit-profile-btn-premium">
+                  ✏️ Edit Profile
+                </Link>
               </div>
-            ) : (
-              <ul>
-                {userHouses.map((house, index) => (
-                  <li key={index}>
-                    <strong>{house.address}</strong>
-                    {house.bedrooms && house.bathrooms && house.squareFeet ? (
-                      <span> - {house.bedrooms} bed, {house.bathrooms} bath, {house.squareFeet} sqft</span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div style={{ marginTop: '16px' }}>
-              <Link to="/houses">
-                <button>{userHouses.length === 0 ? 'Add Your First Property' : 'Manage Properties'}</button>
-              </Link>
+
+              <div className="budget-display">
+                ${profile.budget.toLocaleString('en-US')}
+              </div>
+
+              <div className="profile-stats-grid">
+                <div className="stat-item">
+                  <img src="/icons/bedroom.png" alt="Bedroom" className="stat-icon" />
+                  <span className="stat-text">{profile.targetBedrooms} Bedrooms</span>
+                </div>
+
+                <div className="stat-item">
+                  <img src="/icons/bath.png" alt="Bathroom" className="stat-icon" />
+                  <span className="stat-text">{profile.targetBathrooms} Bathrooms</span>
+                </div>
+
+                <div className="stat-item">
+                  <img src="/icons/budget.png" alt="Budget" className="stat-icon" />
+                  <span className="stat-text">{profile.priorityMode}</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3>Your Properties</h3>
+              {userHouses.length === 0 ? (
+                <div>
+                  <p>You haven't added any properties yet. Start by adding your first property to see how it scores!</p>
+                </div>
+              ) : (
+                <ul>
+                  {userHouses.map((house, index) => (
+                    <li key={index}>
+                      <strong>{house.address}</strong>
+                      {house.bedrooms && house.bathrooms && house.squareFeet ? (
+                        <span> - {house.bedrooms} bed, {house.bathrooms} bath, {house.squareFeet} sqft</span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div style={{ marginTop: '16px' }}>
+                <Link to="/houses">
+                  <button>{userHouses.length === 0 ? 'Add Your First Property' : 'Manage Properties'}</button>
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <h3>SmartScore Rankings</h3>
+              {userHouses.length > 0 && (
+                <div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ marginRight: '8px', fontWeight: '500' }}>Select Mode:</label>
+                    <select
+                      value={selectedMode}
+                      onChange={(e) => {
+                        setSelectedMode(e.target.value);
+                        setScoreResults([]);
+                      }}
+                      disabled={isLoadingScores}
+                      style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d2d2d7' }}
+                    >
+                      {modeOptions.map(mode => (
+                        <option key={mode} value={mode}>{mode}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCalculateScores}
+                    disabled={isLoadingScores || !profile}
+                  >
+                    {isLoadingScores ? 'Calculating...' : `Calculate SmartScore in ${selectedMode} Mode`}
+                  </button>
+                </div>
+              )}
+              {isLoadingScores ? (
+                <p><em>Loading scoring results...</em></p>
+              ) : scoringError ? (
+                <div>
+                  <p><strong>Unable to calculate scores:</strong></p>
+                  <p>{scoringError}</p>
+                </div>
+              ) : scoreResults.length === 0 ? (
+                <p>Ready to see how your properties score? Click the button above to calculate SmartScores for all your properties.</p>
+              ) : (
+                <div>
+                  {scoreResults.slice(0, userHouses.length).map((result, index) => (
+                    <div key={index}>
+                      <div className="score-row">
+                        <div className="score-main">
+                          <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong>
+                          <span>Score: <strong>{result.totalScore}/100</strong></span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setExpandedScoreIndex(prev => (prev === index ? null : index));
+                          }}
+                        >
+                          {expandedScoreIndex === index ? 'Hide Details' : 'Show Details'}
+                        </button>
+                      </div>
+                      {expandedScoreIndex === index ? (
+                        <div className="score-details">
+                          {result.dimensions && result.dimensions.length > 0 ? (
+                            <div className="score-dimensions">
+                              {result.dimensions.map((dimension) => (
+                                <div key={dimension.name}>
+                                  <span>{dimension.name}</span>
+                                  <strong>{dimension.score}</strong>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="score-summary">
+                              Score breakdown isn’t available from the backend yet.
+                            </p>
+                          )}
+                          {result.summary ? <p className="score-summary">{result.summary}</p> : null}
+                          {result.warnings && result.warnings.length > 0 ? (
+                            <div className="score-warnings">
+                              {result.warnings.map((warning, warningIndex) => (
+                                <div key={warningIndex}>{warning}</div>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-
+        ) : (
           <div>
-            <h3>SmartScore Rankings</h3>
-            {userHouses.length > 0 && (
-              <div>
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ marginRight: '8px', fontWeight: '500' }}>Select Mode:</label>
-                  <select 
-                    value={selectedMode} 
-                    onChange={(e) => {
-                      setSelectedMode(e.target.value);
-                      setScoreResults([]);
-                    }}
-                    disabled={isLoadingScores}
-                    style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d2d2d7' }}
-                  >
-                    {modeOptions.map(mode => (
-                      <option key={mode} value={mode}>{mode}</option>
-                    ))}
-                  </select>
-                </div>
-                <button 
-                  type="button" 
-                  onClick={handleCalculateScores}
-                  disabled={isLoadingScores || !profile}
-                >
-                  {isLoadingScores ? 'Calculating...' : `Calculate SmartScore in ${selectedMode} Mode`}
-                </button>
-              </div>
-            )}
-            {isLoadingScores ? (
-              <p><em>Loading scoring results...</em></p>
-            ) : scoringError ? (
-              <div>
-                <p><strong>Unable to calculate scores:</strong></p>
-                <p>{scoringError}</p>
-              </div>
-            ) : scoreResults.length === 0 ? (
-              <p>Ready to see how your properties score? Click the button above to calculate SmartScores for all your properties.</p>
-            ) : (
-              <div>
-                {scoreResults.slice(0, userHouses.length).map((result, index) => (
-                  <div key={index}>
-                    <div className="score-row">
-                      <div className="score-main">
-                        <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong>
-                        <span>Score: <strong>{result.totalScore}/100</strong></span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setExpandedScoreIndex(prev => (prev === index ? null : index));
-                        }}
-                      >
-                        {expandedScoreIndex === index ? 'Hide Details' : 'Show Details'}
-                      </button>
-                    </div>
-                    {expandedScoreIndex === index ? (
-                      <div className="score-details">
-                        {result.dimensions && result.dimensions.length > 0 ? (
-                          <div className="score-dimensions">
-                            {result.dimensions.map((dimension) => (
-                              <div key={dimension.name}>
-                                <span>{dimension.name}</span>
-                                <strong>{dimension.score}</strong>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="score-summary">
-                            Score breakdown isn’t available from the backend yet.
-                          </p>
-                        )}
-                        {result.summary ? <p className="score-summary">{result.summary}</p> : null}
-                        {result.warnings && result.warnings.length > 0 ? (
-                          <div className="score-warnings">
-                            {result.warnings.map((warning, warningIndex) => (
-                              <div key={warningIndex}>{warning}</div>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            )}
+            <h2>Get Started</h2>
+            <p>Please set up your profile to customize your home buying preferences.</p>
+            <p>
+              <Link to="/profile">
+                <button>Set Up Profile</button>
+              </Link>
+            </p>
           </div>
-        </div>
-      ) : (
-        <div>
-          <h2>Get Started</h2>
-          <p>Please set up your profile to customize your home buying preferences.</p>
-          <p>
-            <Link to="/profile">
-              <button>Set Up Profile</button>
-            </Link>
-          </p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
