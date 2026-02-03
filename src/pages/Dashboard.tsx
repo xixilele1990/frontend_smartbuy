@@ -212,9 +212,9 @@ function Dashboard() {
             ) : scoreResults.length === 0 ? (
               <p>Ready to see how your properties score? Click the button above to calculate SmartScores for all your properties.</p>
             ) : (
-              <ol>
-                {scoreResults.map((result, index) => (
-                  <li key={index}>
+              <div>
+                {scoreResults.slice(0, userHouses.length).map((result, index) => (
+                  <div key={index}>
                     <div className="score-row">
                       <div className="score-main">
                         <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong>
@@ -232,14 +232,14 @@ function Dashboard() {
                     {expandedScoreIndex === index ? (
                       <div className="score-details">
                         {result.dimensions && result.dimensions.length > 0 ? (
-                          <ul className="score-dimensions">
+                          <div className="score-dimensions">
                             {result.dimensions.map((dimension) => (
-                              <li key={dimension.name}>
+                              <div key={dimension.name}>
                                 <span>{dimension.name}</span>
                                 <strong>{dimension.score}</strong>
-                              </li>
+                              </div>
                             ))}
-                          </ul>
+                          </div>
                         ) : (
                           <p className="score-summary">
                             Score breakdown isn’t available from the backend yet.
@@ -247,17 +247,17 @@ function Dashboard() {
                         )}
                         {result.summary ? <p className="score-summary">{result.summary}</p> : null}
                         {result.warnings && result.warnings.length > 0 ? (
-                          <ul className="score-warnings">
+                          <div className="score-warnings">
                             {result.warnings.map((warning, warningIndex) => (
-                              <li key={warningIndex}>{warning}</li>
+                              <div key={warningIndex}>{warning}</div>
                             ))}
-                          </ul>
+                          </div>
                         ) : null}
                       </div>
                     ) : null}
-                  </li>
+                  </div>
                 ))}
-              </ol>
+              </div>
             )}
           </div>
         </div>
