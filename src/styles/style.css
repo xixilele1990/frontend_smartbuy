@@ -658,6 +658,8 @@ footer p {
   color: white;
   opacity: 0.95;
   flex-shrink: 0;
+  filter: invert(1) brightness(2);
+  object-fit: contain;
 }
 
 .stat-text {

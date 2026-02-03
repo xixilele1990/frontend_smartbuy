@@ -136,35 +136,17 @@ function Dashboard() {
 
               <div className="profile-stats-grid">
                 <div className="stat-item">
-                  <svg className="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 12V18H4V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M2 18H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <rect x="4" y="7" width="16" height="5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <circle cx="7" cy="9.5" r="1.5" fill="currentColor" />
-                    <circle cx="17" cy="9.5" r="1.5" fill="currentColor" />
-                  </svg>
+                  <img src="/icons/bedroom.png" alt="Bedroom" className="stat-icon" />
                   <span className="stat-text">{profile.targetBedrooms} Bedrooms</span>
                 </div>
 
                 <div className="stat-item">
-                  <svg className="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 6C7 5.44772 7.44772 5 8 5H16C16.5523 5 17 5.44772 17 6V12" stroke="currentColor" strokeWidth="2" />
-                    <path d="M4 12H20V16C20 16.5523 19.5523 17 19 17H5C4.44772 17 4 16.5523 4 16V12Z" stroke="currentColor" strokeWidth="2" />
-                    <path d="M2 17V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    <path d="M22 17V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    <circle cx="17" cy="6" r="0.5" fill="currentColor" />
-                    <path d="M17 6V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
+                  <img src="/icons/bath.png" alt="Bathroom" className="stat-icon" />
                   <span className="stat-text">{profile.targetBathrooms} Bathrooms</span>
                 </div>
 
                 <div className="stat-item">
-                  <svg className="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-                    <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="2" />
-                    <circle cx="12" cy="12" r="2" fill="currentColor" />
-                    <line x1="12" y1="2" x2="12" y2="4" stroke="currentColor" strokeWidth="2" />
-                  </svg>
+                  <img src="/icons/budget.png" alt="Budget" className="stat-icon" />
                   <span className="stat-text">{profile.priorityMode}</span>
                 </div>
               </div>
