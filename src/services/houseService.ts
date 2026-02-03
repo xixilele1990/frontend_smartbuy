@@ -5,7 +5,7 @@ import { apiFetch } from './api';
 /**
  * Backend House response from ATTOM API
  */
-interface HouseFromAttom {
+export interface HouseFromAttom {
   attomId: number;
   address1: string;
   address2: string;
@@ -50,6 +50,37 @@ const fromResponse = (response: HouseFromAttom, address: string): House => ({
   squareFeet: response.roomsTotal,
   createdAt: new Date().toISOString(),
 });
+
+/**
+ * Get house details from backend
+ */
+export async function getHouseDetails(address: string): Promise<HouseFromAttom> {
+  const addr = addressToBackend(address);
+  
+  const queryParams = new URLSearchParams({
+    address1: addr.address1,
+    address2: addr.address2,
+  }).toString();
+  const queryUrl = `/api/houses/from-attom-hardcoded?${queryParams}`;
+  
+  try {
+    const response = await apiFetch<{ house: HouseFromAttom; warnings: string[] }>(
+      queryUrl,
+      {
+        method: 'POST',
+      }
+    );
+
+    if (!response.house) {
+      throw new Error('No house data available');
+    }
+
+    return response.house;
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Failed to get details for "${address}": ${errorMsg}`);
+  }
+}
 
 /**
  * Add a house by fetching data from ATTOM API

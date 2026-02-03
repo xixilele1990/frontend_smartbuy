@@ -5,9 +5,16 @@ import { apiFetch } from './api';
 /**
  * Response from backend score API
  */
+export interface DimensionScore {
+  name: string;
+  score: number;
+}
+
 export interface ScoreResponse {
   house: House;
   totalScore: number;
+  dimensions?: DimensionScore[];
+  summary?: string;
   warnings?: string[];
 }
 
