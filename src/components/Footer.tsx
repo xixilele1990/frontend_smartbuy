@@ -7,7 +7,7 @@ function Footer({ projectName, teamName }: FooterProps) {
   return (
     <footer>
       <p>
-        Ada C24 Project: {projectName} | Team: @{teamName}
+        @Ada C24 Project: {projectName} | Team: {teamName}
       </p>
     </footer>
   );
