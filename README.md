@@ -53,14 +53,31 @@ src/
 
 ## Data Flow
 
+### Dashboard Workflow
 1. User visits Dashboard → loads profile from backend API, shows Profile Summary + Properties
-2. User navigates to Profile → loads existing profile if exists
-3. User fills Profile form + saves → POST to `/buyerProfile` → persists to backend database
-4. User navigates to Dashboard → profile data reloaded from backend
-5. User navigates to Houses → can add properties by address
-6. User enters address + submits → calls ATTOM API via backend → returns real property data (beds, baths, price, schools, crime index)
-7. Properties stored in local state (not persisted to backend yet)
-8. User can delete properties from local list
+2. Profile Summary Card displays: budget, target bedrooms/bathrooms, priority mode
+3. Properties section shows list of added houses
+4. SmartScore Rankings: user selects mode (Balanced/Budget Driven/Safety First/Education First) and clicks "Calculate SmartScore"
+5. Dashboard calls `/api/score/batch-from-attom` for all properties → returns scores for each dimension
+6. Results display: total score + expandable details showing dimension scores, summary, and warnings
+
+### Profile Workflow
+7. User navigates to Profile → loads existing profile if exists
+8. User fills Profile form + saves → POST to `/buyerProfile` → persists to backend database
+9. Form validates: budget ≥ 0, bedrooms/bathrooms ≥ 0, priority mode selected
+10. User can delete profile (confirmation dialog)
+
+### Houses Workflow
+11. User navigates to Houses → can add properties by address
+12. User enters address + submits → `addHouse()` → calls ATTOM API via backend → returns property data
+13. Backend returns: beds, baths, rooms, AVM value, school data, crime index
+14. Properties stored in **localStorage** (not persisted to backend yet)
+15. User can click "View Details" on any property → displays:
+    - Property basics: address, beds, baths, rooms, estimated value
+    - **Schools**: Institution name, type, grades, distance, rating, student count, teacher ratio
+    - **Crime Index**: Overall crime score for the area
+    - **Map**: Embedded map showing property location (via Nominatim)
+16. User can delete individual properties or clear all (with confirmation)
 
 ### Session Management
 - Auto-generated `sessionId` stored in localStorage on first visit
@@ -88,17 +105,21 @@ src/
 - [x] Implement loading states and error handling
 - [x] Clean up unused code and optimize imports
 - [x] Push all changes to GitHub
+- [x] Add house detail viewer with school & crime data
+- [x] Integrate Nominatim/OpenStreetMap for property location mapping
+- [x] Handle ATTOM detailed property data (AVM value, schools, crime)
+- [x] Implement scoringService.ts with batch scoring API
 
 ### In Progress ⏳
 - [ ] Persist houses to backend database (currently local-only)
 - [ ] Implement house deletion on backend
 
 ### Future Features 🚀
-- [ ] Implement actual SmartScore calculation with real property data
+- [x] Implement actual SmartScore calculation with real property data
 - [ ] Create `HouseDetail` route with full scoring breakdown
 - [ ] Add property filtering and sorting options
 - [ ] Implement property comparison feature
-- [ ] Add CSS styling (design system)
+- [x] Add CSS styling (design system)
 - [ ] User authentication/authorization
 
 ## Backend Integration
@@ -151,7 +172,15 @@ This frontend is designed to work with the SmartBuy Java Spring Boot backend.
 
 - ✅ `api.ts` - Generic HTTP client with session & CORS handling
 - ✅ `profileService.ts` - Profile CRUD with DTO mapping
+  - `saveProfile(profile)` - Save or update buyer profile
+  - `getProfile()` - Load profile by sessionId
+  - `deleteProfile()` - Delete profile by sessionId
 - ✅ `houseService.ts` - House CRUD with ATTOM API integration
+  - `addHouse(house)` - Add property and fetch ATTOM data
+  - `getHouseDetails(address)` - Get detailed property info (schools, crime, etc.)
+- ✅ `scoringService.ts` - SmartScore calculation
+  - `scoreHouse(profile, house)` - Score single property
+  - `batchScoreFromAddresses(profile, addresses)` - Score multiple properties in batch
 
 
 ## Scripts
