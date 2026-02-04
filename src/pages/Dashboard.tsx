@@ -128,6 +128,15 @@ function Dashboard() {
     }
   };
 
+  const comparisonDimensions = Array.from(
+    new Set(
+      scoreResults.flatMap(result => result.dimensions?.map(dimension => dimension.name) ?? [])
+    )
+  );
+
+  const getDimensionScore = (result: ScoreResultWithAddress, name: string) =>
+    result.dimensions?.find(dimension => dimension.name === name)?.score;
+
   return (
     <div>
       <Header />
@@ -279,51 +288,135 @@ function Dashboard() {
               ) : scoreResults.length === 0 ? (
                 <p>Ready to see how your properties score? Click the button above to calculate SmartScores for all your properties.</p>
               ) : (
-                <div>
-                  {scoreResults.slice(0, userHouses.length).map((result, index) => (
-                    <div key={index}>
-                      <div className="score-row">
-                        <div className="score-main">
-                          <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong>
-                          <span>Score: <strong>{result.totalScore}/100</strong></span>
+                <div className="score-section">
+                  {scoreResults.slice(0, userHouses.length).map((result, index) => {
+                    const isExpanded = expandedScoreIndex === index;
+                    return (
+                      <div key={index} className={`score-card ${isExpanded ? 'score-card-expanded' : ''}`}>
+                        <div className="score-card-header">
+                          <div className="score-card-rank">
+                            <span className={`rank-pill rank-${index + 1}`}>#{index + 1}</span>
+                            <div className="score-card-title">
+                              <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong>
+                              <span className="score-card-subtitle">Mode: {selectedMode}</span>
+                            </div>
+                          </div>
+                          <div className="score-card-score">
+                            <span className="score-score-label">Total</span>
+                            <span className="score-score-pill">{result.totalScore}/100</span>
+                          </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setExpandedScoreIndex(prev => (prev === index ? null : index));
-                          }}
-                        >
-                          {expandedScoreIndex === index ? 'Hide Details' : 'Show Details'}
-                        </button>
+
+                        <div className="score-card-bar">
+                          <div
+                            className="score-bar-fill"
+                            style={{ width: `${Math.min(Math.max(result.totalScore, 0), 100)}%` }}
+                          />
+                        </div>
+
+                        {result.summary ? (
+                          <p className="score-card-summary">{result.summary}</p>
+                        ) : null}
+
+                        <div className="score-card-actions">
+                          <button
+                            type="button"
+                            className="score-detail-toggle"
+                            onClick={() => {
+                              setExpandedScoreIndex(prev => (prev === index ? null : index));
+                            }}
+                          >
+                            {isExpanded ? 'Hide Breakdown' : 'View Breakdown'}
+                          </button>
+                        </div>
+
+                        {isExpanded ? (
+                          <div className="score-details">
+                            {result.dimensions && result.dimensions.length > 0 ? (
+                              <div className="score-dimensions">
+                                {result.dimensions.map((dimension) => (
+                                  <div key={dimension.name} className="score-dimension-card">
+                                    <div className="score-dimension-label">
+                                      <span>{dimension.name}</span>
+                                      <strong>{dimension.score}</strong>
+                                    </div>
+                                    <div className="score-bar score-bar-compact">
+                                      <div
+                                        className="score-bar-fill score-bar-fill-muted"
+                                        style={{ width: `${Math.min(Math.max(dimension.score, 0), 100)}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="score-summary">
+                                Score breakdown isn’t available from the backend yet.
+                              </p>
+                            )}
+                            {result.warnings && result.warnings.length > 0 ? (
+                              <div className="score-warnings">
+                                {result.warnings.map((warning, warningIndex) => (
+                                  <div key={warningIndex}>{warning}</div>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
-                      {expandedScoreIndex === index ? (
-                        <div className="score-details">
-                          {result.dimensions && result.dimensions.length > 0 ? (
-                            <div className="score-dimensions">
-                              {result.dimensions.map((dimension) => (
-                                <div key={dimension.name}>
-                                  <span>{dimension.name}</span>
-                                  <strong>{dimension.score}</strong>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="score-summary">
-                              Score breakdown isn’t available from the backend yet.
-                            </p>
-                          )}
-                          {result.summary ? <p className="score-summary">{result.summary}</p> : null}
-                          {result.warnings && result.warnings.length > 0 ? (
-                            <div className="score-warnings">
-                              {result.warnings.map((warning, warningIndex) => (
-                                <div key={warningIndex}>{warning}</div>
-                              ))}
-                            </div>
-                          ) : null}
-                        </div>
-                      ) : null}
+                    );
+                  })}
+
+                  <div className="score-comparison">
+                    <div className="score-comparison-header">
+                      <div>
+                        <h4>Score Overview</h4>
+                        <p>Compare total scores and key dimensions at a glance.</p>
+                      </div>
+                      <div className="score-comparison-legend">
+                        <span className="legend-dot" /> 0–100 scale
+                      </div>
                     </div>
-                  ))}
+
+                    {scoreResults.map((result, index) => (
+                      <div key={`${result.displayAddress || 'score'}-${index}`} className="score-comparison-row">
+                        <div className="score-comparison-title">
+                          <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong>
+                          <span>{result.totalScore}/100</span>
+                        </div>
+                        <div className="score-bar">
+                          <div
+                            className="score-bar-fill"
+                            style={{ width: `${Math.min(Math.max(result.totalScore, 0), 100)}%` }}
+                          />
+                        </div>
+
+                        {comparisonDimensions.length > 0 && (
+                          <div className="score-dimension-grid">
+                            {comparisonDimensions.map(dimensionName => {
+                              const dimensionScore = getDimensionScore(result, dimensionName);
+                              if (dimensionScore === undefined) {
+                                return null;
+                              }
+
+                              return (
+                                <div key={`${dimensionName}-${index}`} className="score-dimension-item">
+                                  <span>{dimensionName}</span>
+                                  <div className="score-bar score-bar-compact">
+                                    <div
+                                      className="score-bar-fill score-bar-fill-muted"
+                                      style={{ width: `${Math.min(Math.max(dimensionScore, 0), 100)}%` }}
+                                    />
+                                  </div>
+                                  <span className="score-dimension-value">{dimensionScore}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
