@@ -225,6 +225,7 @@ function Houses() {
                 placeholder="e.g. 123 Main Street"
                 required
               />
+              <p className="form-hint"> Example:1600 Amphitheatre Pkwy, Mountain View, CA 94043</p>
             </div>
 
             {errorMessage ? <p style={{ color: 'red' }}>{errorMessage}</p> : null}
