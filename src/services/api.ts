@@ -1,8 +1,6 @@
-// API Configuration and Base Client
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
-// Log configuration on startup
 console.log('[API] BASE_URL configured as:', BASE_URL);
 console.log('[API] VITE_API_BASE_URL env:', import.meta.env.VITE_API_BASE_URL);
 
