@@ -162,7 +162,7 @@ form>div {
 }
 
 label {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   color: var(--color-text);
   margin-bottom: 4px;
@@ -570,9 +570,13 @@ footer p {
 }
 
 .budget-display {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  font-size: 52px;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+  margin: var(--spacing-md) 0;
+  letter-spacing: -1.5px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .budget-label {
@@ -603,12 +607,41 @@ footer p {
   cursor: pointer;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
+  width: 180px;
+  text-align: center;
 }
 
 .edit-profile-btn-premium:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+}
+
+/* Action button for white background sections */
+.action-btn-premium {
+  background: white;
+  border: 2px solid #004182;
+  color: #004182;
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 180px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.action-btn-premium:hover:not(:disabled) {
+  background: #f0f4f9;
+  border-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.action-btn-premium:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .profile-stats-grid {
@@ -683,8 +716,8 @@ footer p {
     display: none;
   }
 
-  .budget-amount {
-    font-size: 36px;
+  .budget-display {
+    font-size: 48px;
   }
 
   .profile-header-premium {
@@ -743,6 +776,10 @@ footer p {
   padding: var(--spacing-sm);
   background: var(--color-background-secondary);
   border-radius: var(--radius-sm);
+  height: 140px;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 .preview-label {

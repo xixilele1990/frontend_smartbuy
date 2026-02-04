@@ -272,13 +272,12 @@ function Profile() {
         {saveMessage ? <p style={{ color: 'green' }}>{saveMessage}</p> : null}
 
         <div>
-          <button type="button" onClick={handleDelete} disabled={isLoading}>
-            {isLoading ? 'Deleting...' : 'Delete Profile'}
-          </button>
-        </div>
-
-        <div>
-          <h3>Profile preview</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h3 style={{ margin: 0 }}>Profile preview</h3>
+            <button className="action-btn-premium" onClick={handleDelete} disabled={isLoading}>
+              {isLoading ? 'Deleting...' : 'Delete Profile'}
+            </button>
+          </div>
           {isExampleData && <p><em>Example data (not saved to server)</em></p>}
           <div className="profile-preview-grid">
             <div className="preview-item">

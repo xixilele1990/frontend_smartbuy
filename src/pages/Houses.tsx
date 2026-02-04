@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { House } from '../types';
@@ -40,19 +39,19 @@ const STYLES = {
     gap: '4px'
   }),
   sectionLabel: {
-    fontSize: '12px' as const,
+    fontSize: '17px' as const,
     fontWeight: '600' as const,
     color: '#666',
     marginBottom: '12px',
     textTransform: 'uppercase' as const
   },
   fieldLabel: {
-    fontSize: '12px' as const,
+    fontSize: '17px' as const,
     fontWeight: '500' as const,
     color: '#666'
   },
   fieldValue: {
-    fontSize: '14px' as const,
+    fontSize: '17px' as const,
     fontWeight: '600' as const,
     color: '#333',
     wordBreak: 'break-word' as const
@@ -209,12 +208,6 @@ function Houses() {
     <div>
       <Header />
       <div className="page-content">
-        <div>
-          <Link to="/">
-            <button type="button">← Back to Dashboard</button>
-          </Link>
-        </div>
-
         <h1>My Properties</h1>
         <p>View and compare all your saved properties.</p>
 
@@ -244,7 +237,14 @@ function Houses() {
         </div>
 
         <div>
-          <h2>Properties List</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h2 style={{ margin: 0 }}>Properties List</h2>
+            {userHouses.length > 0 && (
+              <button className="action-btn-premium" onClick={handleDeleteAll} disabled={isLoading}>
+                {isLoading ? 'Deleting...' : 'Delete All Properties'}
+              </button>
+            )}
+          </div>
           {userHouses.length === 0 ? (
             <p>No properties yet. Add your first property above to get started.</p>
           ) : (
@@ -264,13 +264,6 @@ function Houses() {
           )}
         </div>
 
-        {userHouses.length > 0 && (
-          <div>
-            <button type="button" onClick={handleDeleteAll} disabled={isLoading}>
-              {isLoading ? 'Deleting...' : 'Delete All Properties'}
-            </button>
-          </div>
-        )}
 
         {/* House Details Modal */}
         {(isLoadingDetails || selectedHouseDetails || detailsError) && (
@@ -353,11 +346,11 @@ function Houses() {
                     padding: '16px',
                     marginBottom: '20px'
                   }}>
-                    <p style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>ADDRESS</p>
+                    <p style={{ fontSize: '17px', color: '#999', marginBottom: '4px' }}>ADDRESS</p>
                     <p style={{ fontSize: '18px', fontWeight: '600', color: '#333' }}>
                       {selectedHouseDetails.address1}
                     </p>
-                    <p style={{ fontSize: '14px', color: '#666' }}>
+                    <p style={{ fontSize: '17px', color: '#666' }}>
                       {selectedHouseDetails.address2}
                     </p>
                   </div>
@@ -376,7 +369,7 @@ function Houses() {
                       const bbox = `${mapCoordinates.lng - 0.01},${mapCoordinates.lat - 0.01},${mapCoordinates.lng + 0.01},${mapCoordinates.lat + 0.01}`;
                       return (
                         <div style={{ marginBottom: '20px' }}>
-                          <p style={{ fontSize: '12px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>LOCATION</p>
+                          <p style={{ fontSize: '17px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>LOCATION</p>
                           <div style={{
                             borderRadius: '8px',
                             overflow: 'hidden',
@@ -400,7 +393,7 @@ function Houses() {
 
                   {/* Property Features */}
                   <div style={{ marginBottom: '20px' }}>
-                    <p style={{ fontSize: '12px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>PROPERTY FEATURES</p>
+                    <p style={{ fontSize: '17px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>PROPERTY FEATURES</p>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       {selectedHouseDetails.beds && (
                         <div style={{
@@ -412,7 +405,7 @@ function Houses() {
                           <p style={{ fontSize: '24px', fontWeight: '600', color: '#007AFF' }}>
                             {selectedHouseDetails.beds}
                           </p>
-                          <p style={{ fontSize: '12px', color: '#666' }}>Bedrooms</p>
+                          <p style={{ fontSize: '17px', color: '#666' }}>Bedrooms</p>
                         </div>
                       )}
 
@@ -426,7 +419,7 @@ function Houses() {
                           <p style={{ fontSize: '24px', fontWeight: '600', color: '#007AFF' }}>
                             {selectedHouseDetails.bathsTotal}
                           </p>
-                          <p style={{ fontSize: '12px', color: '#666' }}>Bathrooms</p>
+                          <p style={{ fontSize: '17px', color: '#666' }}>Bathrooms</p>
                         </div>
                       )}
 
@@ -440,7 +433,7 @@ function Houses() {
                           <p style={{ fontSize: '24px', fontWeight: '600', color: '#007AFF' }}>
                             {selectedHouseDetails.roomsTotal}
                           </p>
-                          <p style={{ fontSize: '12px', color: '#666' }}>Total Rooms</p>
+                          <p style={{ fontSize: '17px', color: '#666' }}>Total Rooms</p>
                         </div>
                       )}
                     </div>
@@ -455,7 +448,7 @@ function Houses() {
                       padding: '16px',
                       marginBottom: '20px'
                     }}>
-                      <p style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>ESTIMATED VALUE</p>
+                      <p style={{ fontSize: '17px', color: '#666', marginBottom: '4px' }}>ESTIMATED VALUE</p>
                       <p style={{ fontSize: '24px', fontWeight: '600', color: '#007AFF' }}>
                         ${selectedHouseDetails.avmValue.toLocaleString('en-US')}
                       </p>
@@ -465,7 +458,7 @@ function Houses() {
                   {/* Community Information */}
                   {(selectedHouseDetails.crimeIndex !== undefined || selectedHouseDetails.geoIdV4) && (
                     <div style={{ marginBottom: '20px' }}>
-                      <p style={{ fontSize: '12px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>COMMUNITY</p>
+                      <p style={{ fontSize: '17px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>COMMUNITY</p>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                         {selectedHouseDetails.crimeIndex !== undefined && (
                           <div style={{
@@ -478,7 +471,7 @@ function Houses() {
                             <p style={{ fontSize: '18px', fontWeight: '600', color: '#ff9800' }}>
                               {selectedHouseDetails.crimeIndex}
                             </p>
-                            <p style={{ fontSize: '12px', color: '#666' }}>Crime Index</p>
+                            <p style={{ fontSize: '17px', color: '#666' }}>Crime Index</p>
                           </div>
                         )}
 
@@ -489,10 +482,10 @@ function Houses() {
                             borderRadius: '6px',
                             textAlign: 'center'
                           }}>
-                            <p style={{ fontSize: '12px', color: '#999', wordBreak: 'break-all' }}>
+                            <p style={{ fontSize: '17px', color: '#999', wordBreak: 'break-all' }}>
                               {selectedHouseDetails.geoIdV4}
                             </p>
-                            <p style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>Geo ID</p>
+                            <p style={{ fontSize: '17px', color: '#666', marginTop: '4px' }}>Geo ID</p>
                           </div>
                         )}
                       </div>
@@ -528,7 +521,7 @@ function Houses() {
                                     }}
                                   >
                                     <p style={{
-                                      fontSize: '16px',
+                                      fontSize: '17px',
                                       fontWeight: '700',
                                       color: '#1a1a1a',
                                       margin: '0 0 14px 0'
@@ -558,7 +551,7 @@ function Houses() {
                           } catch (error) {
                             return (
                               <div style={{ padding: '12px' }}>
-                                <p style={{ fontSize: '12px', color: '#999', margin: '0 0 8px 0' }}>Error parsing schools data</p>
+                                <p style={{ fontSize: '17px', color: '#999', margin: '0 0 8px 0' }}>Error parsing schools data</p>
                               </div>
                             );
                           }
@@ -575,8 +568,8 @@ function Houses() {
                       borderRadius: '6px',
                       marginBottom: '20px'
                     }}>
-                      <p style={{ fontSize: '11px', color: '#999', marginBottom: '4px' }}>ATTOM ID</p>
-                      <p style={{ fontSize: '12px', color: '#666', fontFamily: 'monospace' }}>
+                      <p style={{ fontSize: '17px', color: '#999', marginBottom: '4px' }}>ATTOM ID</p>
+                      <p style={{ fontSize: '17px', color: '#666', fontFamily: 'monospace' }}>
                         {selectedHouseDetails.attomId}
                       </p>
                     </div>
@@ -595,7 +588,7 @@ function Houses() {
                     border: 'none',
                     borderRadius: '6px',
                     cursor: 'pointer',
-                    fontSize: '16px'
+                    fontSize: '17px'
                   }}
                 >
                   Back to Properties

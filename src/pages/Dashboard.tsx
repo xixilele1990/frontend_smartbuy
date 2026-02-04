@@ -139,7 +139,7 @@ function Dashboard() {
           <div>
             <div className="profile-summary-card-premium">
               <div className="profile-header-premium">
-                <span className="card-label">PROFILE SUMMARY CARD</span>
+                <span className="card-label">USER PROFILE </span>
                 <Link to="/profile" className="edit-profile-btn-premium">
                   Edit Profile
                 </Link>
@@ -168,7 +168,12 @@ function Dashboard() {
             </div>
 
             <div>
-              <h3>Your Properties</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ margin: 0 }}>Your Properties</h3>
+                <Link to="/houses">
+                  <button className="action-btn-premium">{userHouses.length === 0 ? 'Add Your First Property' : 'Manage Properties'}</button>
+                </Link>
+              </div>
               {userHouses.length === 0 ? (
                 <div>
                   <p>You haven't added any properties yet. Start by adding your first property to see how it scores!</p>
@@ -185,41 +190,84 @@ function Dashboard() {
                   ))}
                 </ul>
               )}
-              <div style={{ marginTop: '16px' }}>
-                <Link to="/houses">
-                  <button>{userHouses.length === 0 ? 'Add Your First Property' : 'Manage Properties'}</button>
-                </Link>
-              </div>
             </div>
 
             <div>
-              <h3>SmartScore Rankings</h3>
-              {userHouses.length > 0 && (
-                <div>
-                  <div style={{ marginBottom: '12px' }}>
-                    <label style={{ marginRight: '8px', fontWeight: '500' }}>Select Mode:</label>
-                    <select
-                      value={selectedMode}
-                      onChange={(e) => {
-                        setSelectedMode(e.target.value);
-                        setScoreResults([]);
-                      }}
-                      disabled={isLoadingScores}
-                      style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d2d2d7' }}
-                    >
-                      {modeOptions.map(mode => (
-                        <option key={mode} value={mode}>{mode}</option>
-                      ))}
-                    </select>
-                  </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <h3 style={{ margin: 0 }}>SmartScore Rankings</h3>
+                {userHouses.length > 0 && (
                   <button
-                    type="button"
+                    className="action-btn-premium"
                     onClick={handleCalculateScores}
                     disabled={isLoadingScores || !profile}
                   >
-                    {isLoadingScores ? 'Calculating...' : `Calculate SmartScore in ${selectedMode} Mode`}
+                    {isLoadingScores ? 'Calculating...' : 'Calculate'}
                   </button>
-                </div>
+                )}
+              </div>
+              {userHouses.length > 0 && (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <label style={{ fontWeight: '500', fontSize: '17px' }}>Select Mode:</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {modeOptions.map(mode => (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => {
+                            setSelectedMode(mode);
+                            setScoreResults([]);
+                          }}
+                          disabled={isLoadingScores}
+                          style={{
+                            padding: '10px 16px',
+                            fontSize: '17px',
+                            fontWeight: '500',
+                            borderRadius: '6px',
+                            border: selectedMode === mode ? '2px solid #004182' : '1px solid #d2d2d7',
+                            backgroundColor: selectedMode === mode ? '#004182' : 'white',
+                            color: selectedMode === mode ? 'white' : '#333',
+                            cursor: isLoadingScores ? 'not-allowed' : 'pointer',
+                            transition: 'all 0.2s ease',
+                            minWidth: 'auto',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {mode}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{
+                    backgroundColor: '#f0f4f9',
+                    padding: '12px 16px',
+                    borderRadius: '6px',
+                    marginBottom: '16px',
+                    fontSize: '14px',
+                    color: '#607d8b'
+                  }}>
+                    {selectedMode === 'Balanced' && (
+                      <p style={{ margin: 0 }}>
+                        <strong style={{ color: '#004182' }}>Balanced Mode:</strong> Equal weight across all factors — Price: 25%, Space: 25%, Safety: 25%, School: 25%
+                      </p>
+                    )}
+                    {selectedMode === 'Budget Driven' && (
+                      <p style={{ margin: 0 }}>
+                        <strong style={{ color: '#004182' }}>Budget Driven Mode:</strong> Prioritizes affordability — Price: 50%, Space: 20%, Safety: 20%, School: 10%
+                      </p>
+                    )}
+                    {selectedMode === 'Safety First' && (
+                      <p style={{ margin: 0 }}>
+                        <strong style={{ color: '#004182' }}>Safety First Mode:</strong> Emphasizes low crime areas — Price: 25%, Space: 15%, Safety: 50%, School: 10%
+                      </p>
+                    )}
+                    {selectedMode === 'Education First' && (
+                      <p style={{ margin: 0 }}>
+                        <strong style={{ color: '#004182' }}>Education First Mode:</strong> Focuses on school quality — Price: 20%, Space: 15%, Safety: 15%, School: 50%
+                      </p>
+                    )}
+                  </div>
+                </>
               )}
               {isLoadingScores ? (
                 <p><em>Loading scoring results...</em></p>
