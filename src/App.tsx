@@ -12,7 +12,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/houses" element={<Houses />} />
       </Routes>
-      <Footer projectName="SmartBuy" teamName="Lexy/Li/Xi" />
+      <Footer projectName="SmartBuy" teamMembers={['Lexy Le', 'Li Yan', 'Xi Wu']} />
     </BrowserRouter>
   );
 }
