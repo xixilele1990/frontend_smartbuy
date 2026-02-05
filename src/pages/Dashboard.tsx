@@ -128,14 +128,7 @@ function Dashboard() {
     }
   };
 
-  const comparisonDimensions = Array.from(
-    new Set(
-      scoreResults.flatMap(result => result.dimensions?.map(dimension => dimension.name) ?? [])
-    )
-  );
 
-  const getDimensionScore = (result: ScoreResultWithAddress, name: string) =>
-    result.dimensions?.find(dimension => dimension.name === name)?.score;
 
   return (
     <div>
