@@ -16,7 +16,7 @@ function Dashboard() {
   const [scoreResults, setScoreResults] = useState<ScoreResultWithAddress[]>([]);
   const [isLoadingScores, setIsLoadingScores] = useState(false);
   const [scoringError, setScoringError] = useState<string | null>(null);
-  const [expandedScoreIndex, setExpandedScoreIndex] = useState<number | null>(null);
+  const [expandedScoreIndices, setExpandedScoreIndices] = useState<Set<number>>(new Set());
   const [selectedMode, setSelectedMode] = useState<string>('Balanced');
   const modeOptions = ['Balanced', 'Budget Driven', 'Safety First', 'Education First'];
 
@@ -111,7 +111,7 @@ function Dashboard() {
       }));
 
       setScoreResults(resultsWithAddresses);
-      setExpandedScoreIndex(null);
+      setExpandedScoreIndices(new Set());
       setScoringError(null);
     } catch (error) {
       console.error('[Dashboard.handleCalculateScores] Caught error:', error);
@@ -288,72 +288,112 @@ function Dashboard() {
               ) : scoreResults.length === 0 ? (
                 <p>Ready to see how your properties score? Click the button above to calculate SmartScores for all your properties.</p>
               ) : (
-                <div className="score-section">
+                <div className="score-grid-container">
                   {scoreResults.slice(0, userHouses.length).map((result, index) => {
-                    const isExpanded = expandedScoreIndex === index;
+                    const isExpanded = expandedScoreIndices.has(index);
+
+                    // Determine color based on score
+                    let scoreColor = '#10b981'; // green (≥80)
+                    let scoreColorClass = 'score-excellent';
+                    if (result.totalScore < 60) {
+                      scoreColor = '#ef4444'; // red
+                      scoreColorClass = 'score-poor';
+                    } else if (result.totalScore < 80) {
+                      scoreColor = '#f59e0b'; // orange
+                      scoreColorClass = 'score-fair';
+                    }
+
                     return (
-                      <div key={index} className={`score-card ${isExpanded ? 'score-card-expanded' : ''}`}>
-                        <div className="score-card-header">
-                          <div className="score-card-rank">
-                            <span className={`rank-pill rank-${index + 1}`}>#{index + 1}</span>
-                            <div className="score-card-title">
-                              <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong>
-                              <span className="score-card-subtitle">Mode: {selectedMode}</span>
+                      <div key={index} className={`score-card-vertical ${isExpanded ? 'score-card-expanded' : ''}`}>
+                        <div className="score-card-vertical-header">
+                          <div className="score-card-vertical-info">
+                            <h3 className="score-card-vertical-address">
+                              {result.displayAddress || result.house?.address || 'Unknown Address'}
+                            </h3>
+                            <p className="score-card-vertical-score-text">Score: {result.totalScore}/100</p>
+                          </div>
+                          <div className="circular-progress-vertical">
+                            <svg className="circular-progress-svg" viewBox="0 0 120 120">
+                              <circle
+                                className="circular-progress-bg"
+                                cx="60"
+                                cy="60"
+                                r="52"
+                              />
+                              <circle
+                                className={`circular-progress-fill ${scoreColorClass}`}
+                                cx="60"
+                                cy="60"
+                                r="52"
+                                style={{
+                                  strokeDasharray: `${2 * Math.PI * 52}`,
+                                  strokeDashoffset: `${2 * Math.PI * 52 * (1 - result.totalScore / 100)}`,
+                                  stroke: scoreColor
+                                }}
+                              />
+                            </svg>
+                            <div className="circular-progress-text">
+                              <span className="circular-progress-score" style={{ color: scoreColor }}>
+                                {result.totalScore}
+                              </span>
+                              <span className="circular-progress-label">/100</span>
                             </div>
                           </div>
-                          <div className="score-card-score">
-                            <span className="score-score-label">Total</span>
-                            <span className="score-score-pill">{result.totalScore}/100</span>
-                          </div>
                         </div>
 
-                        <div className="score-card-bar">
-                          <div
-                            className="score-bar-fill"
-                            style={{ width: `${Math.min(Math.max(result.totalScore, 0), 100)}%` }}
-                          />
-                        </div>
+                        <button
+                          type="button"
+                          className="show-details-btn-vertical"
+                          onClick={() => {
+                            setExpandedScoreIndices(prev => {
+                              const newSet = new Set(prev);
+                              if (newSet.has(index)) {
+                                newSet.delete(index);
+                              } else {
+                                newSet.add(index);
+                              }
+                              return newSet;
+                            });
+                          }}
+                        >
+                          {isExpanded ? 'Hide Details ▲' : 'Show Details ▼'}
+                        </button>
 
-                        {result.summary ? (
-                          <p className="score-card-summary">{result.summary}</p>
-                        ) : null}
+                        {isExpanded && result.dimensions && result.dimensions.length > 0 ? (
+                          <div className="score-details-vertical">
+                            {result.dimensions.map((dimension) => {
+                              // Assign colors based on dimension name
+                              let barColor = '#10b981'; // default green
+                              if (dimension.name === 'Space') barColor = '#f59e0b'; // orange
+                              else if (dimension.name === 'Safety') barColor = '#ef4444'; // red
+                              else if (dimension.name === 'School' || dimension.name === 'Schools') barColor = '#8b5cf6'; // purple
+                              else if (dimension.name === 'Price') barColor = '#10b981'; // green
 
-                        <div className="score-card-actions">
-                          <button
-                            type="button"
-                            className="score-detail-toggle"
-                            onClick={() => {
-                              setExpandedScoreIndex(prev => (prev === index ? null : index));
-                            }}
-                          >
-                            {isExpanded ? 'Hide Breakdown' : 'View Breakdown'}
-                          </button>
-                        </div>
-
-                        {isExpanded ? (
-                          <div className="score-details">
-                            {result.dimensions && result.dimensions.length > 0 ? (
-                              <div className="score-dimensions">
-                                {result.dimensions.map((dimension) => (
-                                  <div key={dimension.name} className="score-dimension-card">
-                                    <div className="score-dimension-label">
-                                      <span>{dimension.name}</span>
-                                      <strong>{dimension.score}</strong>
-                                    </div>
-                                    <div className="score-bar score-bar-compact">
-                                      <div
-                                        className="score-bar-fill score-bar-fill-muted"
-                                        style={{ width: `${Math.min(Math.max(dimension.score, 0), 100)}%` }}
-                                      />
-                                    </div>
+                              return (
+                                <div key={dimension.name} className="dimension-row-vertical">
+                                  <div className="dimension-header-vertical">
+                                    <span className="dimension-name-vertical">{dimension.name}</span>
+                                    <span className="dimension-score-vertical">{dimension.score}/100</span>
                                   </div>
-                                ))}
+                                  <div className="dimension-bar-container-vertical">
+                                    <div
+                                      className="dimension-bar-fill-vertical"
+                                      style={{
+                                        width: `${Math.min(Math.max(dimension.score, 0), 100)}%`,
+                                        backgroundColor: barColor
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            })}
+
+                            {result.summary ? (
+                              <div className="score-summary-box-vertical">
+                                <strong>Summary:</strong> {result.summary}
                               </div>
-                            ) : (
-                              <p className="score-summary">
-                                Score breakdown isn’t available from the backend yet.
-                              </p>
-                            )}
+                            ) : null}
+
                             {result.warnings && result.warnings.length > 0 ? (
                               <div className="score-warnings">
                                 {result.warnings.map((warning, warningIndex) => (
@@ -366,57 +406,6 @@ function Dashboard() {
                       </div>
                     );
                   })}
-
-                  <div className="score-comparison">
-                    <div className="score-comparison-header">
-                      <div>
-                        <h4>Score Overview</h4>
-                        <p>Compare total scores and key dimensions at a glance.</p>
-                      </div>
-                      <div className="score-comparison-legend">
-                        <span className="legend-dot" /> 0–100 scale
-                      </div>
-                    </div>
-
-                    {scoreResults.map((result, index) => (
-                      <div key={`${result.displayAddress || 'score'}-${index}`} className="score-comparison-row">
-                        <div className="score-comparison-title">
-                          <strong>{result.displayAddress || result.house?.address || 'Unknown Address'}</strong>
-                          <span>{result.totalScore}/100</span>
-                        </div>
-                        <div className="score-bar">
-                          <div
-                            className="score-bar-fill"
-                            style={{ width: `${Math.min(Math.max(result.totalScore, 0), 100)}%` }}
-                          />
-                        </div>
-
-                        {comparisonDimensions.length > 0 && (
-                          <div className="score-dimension-grid">
-                            {comparisonDimensions.map(dimensionName => {
-                              const dimensionScore = getDimensionScore(result, dimensionName);
-                              if (dimensionScore === undefined) {
-                                return null;
-                              }
-
-                              return (
-                                <div key={`${dimensionName}-${index}`} className="score-dimension-item">
-                                  <span>{dimensionName}</span>
-                                  <div className="score-bar score-bar-compact">
-                                    <div
-                                      className="score-bar-fill score-bar-fill-muted"
-                                      style={{ width: `${Math.min(Math.max(dimensionScore, 0), 100)}%` }}
-                                    />
-                                  </div>
-                                  <span className="score-dimension-value">{dimensionScore}</span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
                 </div>
               )}
             </div>

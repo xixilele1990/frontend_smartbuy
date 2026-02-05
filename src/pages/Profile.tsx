@@ -132,7 +132,7 @@ function Profile() {
       const savedProfile = await saveProfile(profile);
       setProfile(savedProfile);
       setIsExampleData(false);
-      setSaveMessage('✅ Profile saved successfully.');
+      setSaveMessage(' Profile saved successfully.');
       console.log('Profile submitted', savedProfile);
     } catch (error) {
       if (error instanceof ApiError) {
