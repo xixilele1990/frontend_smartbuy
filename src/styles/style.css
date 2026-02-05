@@ -600,11 +600,13 @@ li {
   justify-content: space-between;
   gap: var(--spacing-sm);
   transition: all 0.2s ease;
+  border: 1px solid transparent;
 }
 
 li:hover {
-  background: var(--color-background);
+  background: #eff6ff;
   box-shadow: var(--shadow-sm);
+  border-color: rgba(0, 65, 130, 0.1);
 }
 
 li strong {
@@ -621,13 +623,27 @@ li button {
   font-size: 14px;
   min-width: auto;
   background-color: transparent;
-  color: var(--color-danger);
-  border: 1px solid var(--color-danger);
+  border: 1px solid transparent;
 }
 
-li button:hover:not(:disabled) {
-  background-color: var(--color-danger);
-  color: var(--color-background);
+.list-btn-details {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.list-btn-details:hover:not(:disabled) {
+  background-color: #eff6ff;
+  color: var(--color-primary);
+}
+
+.list-btn-delete {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.list-btn-delete:hover:not(:disabled) {
+  background-color: #fff1f0;
+  color: var(--color-danger);
 }
 
 /* Ordered Lists (Rankings) */
@@ -714,10 +730,6 @@ p:has(em) {
   color: var(--color-text-secondary);
 }
 
-/* Spacing Utilities */
-div+div {
-  margin-top: var(--spacing-md);
-}
 
 form+p {
   margin-top: var(--spacing-sm);
@@ -1705,17 +1717,7 @@ footer p {
 }
 
 /* Limit to max 3 columns */
-@media (min-width: 1200px) {
-  .score-grid-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
 
-@media (min-width: 768px) and (max-width: 1199px) {
-  .score-grid-container {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 
 @media (max-width: 767px) {
   .score-grid-container {

@@ -215,10 +215,10 @@ function Houses() {
               {userHouses.map((house, index) => (
                 <li key={index}>
                   <strong>{house.address}</strong>
-                  <button type="button" onClick={() => handleViewDetails(house.address)}>
+                  <button type="button" className="list-btn-details" onClick={() => handleViewDetails(house.address)}>
                     Details
                   </button>
-                  <button type="button" onClick={() => handleDeleteHouse(index)}>
+                  <button type="button" className="list-btn-delete" onClick={() => handleDeleteHouse(index)}>
                     Delete
                   </button>
                 </li>
@@ -252,191 +252,191 @@ function Houses() {
 
               <div className="modal-body">
 
-              {isLoadingDetails && (
-                <div className="modal-empty-state">
-                  <p>Loading property details...</p>
-                </div>
-              )}
+                {isLoadingDetails && (
+                  <div className="modal-empty-state">
+                    <p>Loading property details...</p>
+                  </div>
+                )}
 
-              {detailsError && (
-                <div className="modal-error">
-                  <p className="modal-error-title">Unable to Load Details</p>
-                  <p className="modal-error-message">{detailsError}</p>
-                </div>
-              )}
+                {detailsError && (
+                  <div className="modal-error">
+                    <p className="modal-error-title">Unable to Load Details</p>
+                    <p className="modal-error-message">{detailsError}</p>
+                  </div>
+                )}
 
-              {selectedHouseDetails && (
-                <div className="house-details-grid">
-                  <div className="house-details-main">
-                    {/* Hero / Address */}
-                    <div className="card house-details-hero">
-                      <p className="card-kicker">ADDRESS</p>
-                      <p className="house-details-address1">{selectedHouseDetails.address1}</p>
-                      <p className="house-details-address2">{selectedHouseDetails.address2}</p>
-                    </div>
-
-                    {/* Property Features */}
-                    <div className="section">
-                      <p className="section-title">PROPERTY FEATURES</p>
-                      <div className="house-details-metrics">
-                        {selectedHouseDetails.avmValue != null && (
-                          <div className="metric-card metric-card--span-2">
-                            <p className="metric-value metric-value-currency">
-                              ${selectedHouseDetails.avmValue.toLocaleString('en-US')}
-                            </p>
-                            <p className="metric-label">Estimated Value</p>
-                          </div>
-                        )}
-
-                        {selectedHouseDetails.beds != null && (
-                          <div className="metric-card">
-                            <p className="metric-value">{selectedHouseDetails.beds}</p>
-                            <p className="metric-label">Bedrooms</p>
-                          </div>
-                        )}
-
-                        {selectedHouseDetails.bathsTotal != null && (
-                          <div className="metric-card">
-                            <p className="metric-value">{selectedHouseDetails.bathsTotal}</p>
-                            <p className="metric-label">Bathrooms</p>
-                          </div>
-                        )}
+                {selectedHouseDetails && (
+                  <div className="house-details-grid">
+                    <div className="house-details-main">
+                      {/* Hero / Address */}
+                      <div className="card house-details-hero">
+                        <p className="card-kicker">ADDRESS</p>
+                        <p className="house-details-address1">{selectedHouseDetails.address1}</p>
+                        <p className="house-details-address2">{selectedHouseDetails.address2}</p>
                       </div>
-                    </div>
 
-                    {/* Schools Information */}
-                    {selectedHouseDetails.schoolsJson && (
+                      {/* Property Features */}
                       <div className="section">
-                        <p style={STYLES.sectionLabel}>NEARBY SCHOOLS</p>
-                        <div className="card house-details-list-card">
-                          {(() => {
-                            try {
-                              const schools = JSON.parse(selectedHouseDetails.schoolsJson);
-                              const schoolList = Array.isArray(schools) ? schools : [schools];
+                        <p className="section-title">PROPERTY FEATURES</p>
+                        <div className="house-details-metrics">
+                          {selectedHouseDetails.avmValue != null && (
+                            <div className="metric-card metric-card--span-2">
+                              <p className="metric-value metric-value-currency">
+                                ${selectedHouseDetails.avmValue.toLocaleString('en-US')}
+                              </p>
+                              <p className="metric-label">Estimated Value</p>
+                            </div>
+                          )}
 
-                              if (schoolList.length === 0) {
-                                return <p className="muted">No school data available</p>;
-                              }
+                          {selectedHouseDetails.beds != null && (
+                            <div className="metric-card">
+                              <p className="metric-value">{selectedHouseDetails.beds}</p>
+                              <p className="metric-label">Bedrooms</p>
+                            </div>
+                          )}
 
-                              return (
-                                <div>
-                                  {schoolList.map((school: any, index: number) => (
-                                    <div
-                                      key={index}
-                                      className="house-details-list-row"
-                                      style={{
-                                        borderBottom: index < schoolList.length - 1 ? '1px solid #e8e8e8' : 'none'
-                                      }}
-                                    >
-                                      {(() => {
-                                        if (import.meta.env.DEV && index === 0) {
-                                          // Helpful for debugging when backend field names differ (Rating vs rating etc.)
-                                          console.debug('[Houses] School sample keys:', Object.keys(school || {}));
-                                        }
-                                        return null;
-                                      })()}
-                                      <div className="house-details-school-row">
-                                        <p className="house-details-school-name">
-                                          {school.InstitutionName || 'School'}
-                                        </p>
-                                        <div className="house-details-school-rating">
-                                          <span className="muted">Rating</span>
-                                          <span className="house-details-school-rating-value">
-                                            {(() => {
-                                              const rawRating =
-                                                // Backend sample: { schoolRating: "A ", GSTestRating: 0, ... }
-                                                school?.schoolRating ??
-                                                school?.SchoolRating ??
-                                                school?.Rating ??
-                                                school?.rating ??
-                                                school?.GSTestRating ??
-                                                school?.gsTestRating ??
-                                                school?.OverallRating ??
-                                                school?.overallRating ??
-                                                school?.RatingScore ??
-                                                school?.ratingScore;
+                          {selectedHouseDetails.bathsTotal != null && (
+                            <div className="metric-card">
+                              <p className="metric-value">{selectedHouseDetails.bathsTotal}</p>
+                              <p className="metric-label">Bathrooms</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
-                                              if (rawRating == null) return 'N/A';
-                                              if (typeof rawRating === 'object') return JSON.stringify(rawRating);
-                                              const text = String(rawRating).trim();
-                                              return text.length > 0 ? text : 'N/A';
-                                            })()}
-                                          </span>
+                      {/* Schools Information */}
+                      {selectedHouseDetails.schoolsJson && (
+                        <div className="section">
+                          <p style={STYLES.sectionLabel}>NEARBY SCHOOLS</p>
+                          <div className="card house-details-list-card">
+                            {(() => {
+                              try {
+                                const schools = JSON.parse(selectedHouseDetails.schoolsJson);
+                                const schoolList = Array.isArray(schools) ? schools : [schools];
+
+                                if (schoolList.length === 0) {
+                                  return <p className="muted">No school data available</p>;
+                                }
+
+                                return (
+                                  <div>
+                                    {schoolList.map((school: any, index: number) => (
+                                      <div
+                                        key={index}
+                                        className="house-details-list-row"
+                                        style={{
+                                          borderBottom: index < schoolList.length - 1 ? '1px solid #e8e8e8' : 'none'
+                                        }}
+                                      >
+                                        {(() => {
+                                          if (import.meta.env.DEV && index === 0) {
+                                            // Helpful for debugging when backend field names differ (Rating vs rating etc.)
+                                            console.debug('[Houses] School sample keys:', Object.keys(school || {}));
+                                          }
+                                          return null;
+                                        })()}
+                                        <div className="house-details-school-row">
+                                          <p className="house-details-school-name">
+                                            {school.InstitutionName || 'School'}
+                                          </p>
+                                          <div className="house-details-school-rating">
+                                            <span className="muted">Rating</span>
+                                            <span className="house-details-school-rating-value">
+                                              {(() => {
+                                                const rawRating =
+                                                  // Backend sample: { schoolRating: "A ", GSTestRating: 0, ... }
+                                                  school?.schoolRating ??
+                                                  school?.SchoolRating ??
+                                                  school?.Rating ??
+                                                  school?.rating ??
+                                                  school?.GSTestRating ??
+                                                  school?.gsTestRating ??
+                                                  school?.OverallRating ??
+                                                  school?.overallRating ??
+                                                  school?.RatingScore ??
+                                                  school?.ratingScore;
+
+                                                if (rawRating == null) return 'N/A';
+                                                if (typeof rawRating === 'object') return JSON.stringify(rawRating);
+                                                const text = String(rawRating).trim();
+                                                return text.length > 0 ? text : 'N/A';
+                                              })()}
+                                            </span>
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              );
-                            } catch (error) {
-                              return (
-                                <div>
-                                  <p className="muted">Error parsing schools data</p>
-                                </div>
-                              );
-                            }
-                          })()}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="house-details-side">
-                    {/* Location Map */}
-                    {(() => {
-                      // Keep the existing map layout/logic unchanged
-                      if (isLoadingMap) {
-                        return (
-                          <div style={{ marginBottom: '20px', textAlign: 'center', color: '#999', padding: '20px' }}>
-                            Loading map...
+                                    ))}
+                                  </div>
+                                );
+                              } catch (error) {
+                                return (
+                                  <div>
+                                    <p className="muted">Error parsing schools data</p>
+                                  </div>
+                                );
+                              }
+                            })()}
                           </div>
-                        );
-                      }
+                        </div>
+                      )}
+                    </div>
 
-                      if (mapCoordinates) {
-                        const bbox = `${mapCoordinates.lng - 0.01},${mapCoordinates.lat - 0.01},${mapCoordinates.lng + 0.01},${mapCoordinates.lat + 0.01}`;
-                        return (
-                          <div style={{ marginBottom: '20px' }}>
-                            <p style={{ fontSize: '17px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>LOCATION</p>
-                            <div style={{
-                              borderRadius: '8px',
-                              overflow: 'hidden',
-                              border: '1px solid #ddd',
-                              height: '300px'
-                            }}>
-                              <iframe
-                                title="Property Location Map"
-                                width="100%"
-                                height="100%"
-                                style={{ border: 'none' }}
-                                src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${mapCoordinates.lat},${mapCoordinates.lng}`}
-                              />
+                    <div className="house-details-side">
+                      {/* Location Map */}
+                      {(() => {
+                        // Keep the existing map layout/logic unchanged
+                        if (isLoadingMap) {
+                          return (
+                            <div style={{ marginBottom: '20px', textAlign: 'center', color: '#999', padding: '20px' }}>
+                              Loading map...
                             </div>
+                          );
+                        }
+
+                        if (mapCoordinates) {
+                          const bbox = `${mapCoordinates.lng - 0.01},${mapCoordinates.lat - 0.01},${mapCoordinates.lng + 0.01},${mapCoordinates.lat + 0.01}`;
+                          return (
+                            <div style={{ marginBottom: '20px' }}>
+                              <p style={{ fontSize: '17px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>LOCATION</p>
+                              <div style={{
+                                borderRadius: '8px',
+                                overflow: 'hidden',
+                                border: '1px solid #ddd',
+                                height: '300px'
+                              }}>
+                                <iframe
+                                  title="Property Location Map"
+                                  width="100%"
+                                  height="100%"
+                                  style={{ border: 'none' }}
+                                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${mapCoordinates.lat},${mapCoordinates.lng}`}
+                                />
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return null;
+                      })()}
+
+                      {/* Community Information */}
+                      {selectedHouseDetails.crimeIndex !== undefined && (
+                        <div className="section">
+                          <p className="section-title">COMMUNITY</p>
+                          <div className="card house-details-community-card">
+                            <p className="house-details-community-title">Crime Index</p>
+                            <p className="house-details-community-hint">
+                              US average: 100. The higher index, more dangerous, typcally from 80 to 200.
+                            </p>
+                            <p className="house-details-community-value">
+                              {selectedHouseDetails.crimeIndex}
+                            </p>
                           </div>
-                        );
-                      }
-
-                      return null;
-                    })()}
-
-                    {/* Community Information */}
-                    {selectedHouseDetails.crimeIndex !== undefined && (
-                      <div className="section">
-                        <p className="section-title">COMMUNITY</p>
-                        <div className="card house-details-community-card">
-                          <p className="house-details-community-title">Crime Index</p>
-                          <p className="house-details-community-hint">
-                            US average: 100. The higher index, more dangerous, typcally from 80 to 200.
-                          </p>
-                          <p className="house-details-community-value">
-                            {selectedHouseDetails.crimeIndex}
-                          </p>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
               </div>
 
               <div className="modal-footer">
