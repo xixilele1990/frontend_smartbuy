@@ -16,23 +16,27 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 64px;
+    height: 80px;
+    /* Increased from 64px */
 }
 
 /* Logo Section */
 .header-logo {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 24px;
+    gap: 16px;
+    font-size: 32px;
+    /* Increased from 24px */
     font-weight: 700;
     color: white;
     text-decoration: none;
 }
 
 .logo-icon {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    /* Increased from 32px */
+    height: 40px;
+    /* Increased from 32px */
     color: white;
 }
 
@@ -44,17 +48,19 @@
 /* Header Navigation */
 .header-nav {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     align-items: center;
 }
 
 .nav-link {
-    padding: 10px 20px;
-    font-size: 15px;
+    padding: 12px 24px;
+    /* Increased padding */
+    font-size: 18px;
+    /* Increased from 15px */
     font-weight: 500;
     color: rgba(255, 255, 255, 0.85);
     text-decoration: none;
-    border-radius: 24px;
+    border-radius: 30px;
     transition: all 0.2s ease;
     position: relative;
 }
@@ -74,19 +80,21 @@
 @media (max-width: 768px) {
     .header-content {
         padding: 0 var(--spacing-sm);
+        height: 64px;
     }
 
     .header-logo {
-        font-size: 20px;
+        font-size: 24px;
+        gap: 12px;
     }
 
     .logo-icon {
-        width: 28px;
-        height: 28px;
+        width: 32px;
+        height: 32px;
     }
 
     .nav-link {
         padding: 8px 16px;
-        font-size: 14px;
+        font-size: 16px;
     }
 }

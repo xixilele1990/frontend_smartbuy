@@ -134,8 +134,11 @@ function Dashboard() {
     <div>
       <Header />
       <div className="page-content">
-        <h1>SmartBuy Dashboard</h1>
-        <p>Welcome to SmartBuy:Your Home Buying Decision Support System</p>
+        <div className="welcome-section">
+          <h1 className="welcome-title-typo">Welcome to SmartBuy</h1>
+          <div className="welcome-separator"></div>
+          <p className="welcome-subtitle-typo">Your Home Buying Decision Support System</p>
+        </div>
 
         {profile ? (
           <div>
