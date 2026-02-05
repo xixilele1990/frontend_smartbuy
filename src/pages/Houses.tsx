@@ -443,6 +443,20 @@ function Houses() {
                               </span>
                             </div>
 
+                            <div className="crime-visual-container">
+                              <div className="crime-progress-track">
+                                <div
+                                  className="crime-progress-marker"
+                                  style={{ left: `${Math.min(Math.max((selectedHouseDetails.crimeIndex / 200) * 100, 0), 100)}%` }}
+                                ></div>
+                              </div>
+                              <div className="crime-scale-labels">
+                                <span>Low Crime</span>
+                                <span>Avg (100)</span>
+                                <span>High Crime</span>
+                              </div>
+                            </div>
+
                             <div className="crime-context-text">
                               US Average: 100. <br />
                               {selectedHouseDetails.crimeIndex > 100
