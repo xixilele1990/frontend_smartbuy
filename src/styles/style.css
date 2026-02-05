@@ -131,7 +131,6 @@ form {
 
 /* Content Sections */
 #root>div>div>div {
-  background: var(--color-card);
   border-radius: var(--radius-lg);
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
@@ -215,7 +214,7 @@ input::placeholder {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -224,8 +223,8 @@ input::placeholder {
 }
 
 .modal-window {
-  width: min(960px, 100%);
-  max-height: 86vh;
+  width: min(800px, 95%);
+  max-height: 85vh;
   background: var(--color-card);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-lg);
@@ -318,148 +317,245 @@ input::placeholder {
   align-items: start;
 }
 
-.section {
-  margin-bottom: var(--spacing-md);
-}
-
 .section-title {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.6px;
   text-transform: uppercase;
   color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-xs);
-}
-
-.card {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-sm);
-}
-
-.card-kicker {
-  margin: 0 0 6px 0;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
 }
 
 .house-details-hero {
-  background: linear-gradient(135deg, rgba(0, 65, 130, 0.08) 0%, rgba(0, 65, 130, 0.02) 100%);
+  background: linear-gradient(135deg, #f0f7ff 0%, #e6f0fa 100%);
+  border: 1px solid #dbeafe;
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: var(--spacing-md);
+}
+
+.card-kicker {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #64748b;
 }
 
 .house-details-address1 {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
-  color: var(--color-text);
+  color: #0f172a;
+  line-height: 1.2;
 }
 
 .house-details-address2 {
-  margin: 6px 0 0 0;
-  font-size: 15px;
-  color: var(--color-text-secondary);
+  margin: 4px 0 0 0;
+  font-size: 16px;
+  color: #64748b;
 }
 
-.house-details-metrics {
+/* New Metrics Grid */
+.details-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-sm);
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: var(--spacing-md);
 }
 
-.metric-card--span-2 {
-  grid-column: 1 / -1;
-}
-
-.metric-card {
-  background: var(--color-background-secondary);
-  border: 1px solid var(--color-border);
+.detail-metric-card {
+  background: white;
+  border: 1px solid #e2e8f0;
   border-radius: var(--radius-md);
-  padding: 14px;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease;
 }
 
-.metric-value {
-  margin: 0;
-  font-size: 24px;
+.detail-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1;
+}
+
+.metric-icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+  /* Added a bit more space below the larger icon */
+}
+
+.metric-icon-img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.detail-metric-value {
+  font-size: 20px;
   font-weight: 700;
+  color: #0f172a;
+}
+
+.detail-metric-value.price-text {
   color: var(--color-primary);
 }
 
-.metric-value-currency {
-  font-size: 18px;
-}
-
-.metric-value-warn {
-  color: var(--color-warning);
-}
-
-.metric-label {
-  margin: 6px 0 0 0;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-}
-
-.house-details-two-col {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-sm);
-}
-
-.house-details-map {
-  height: 320px;
-  padding: 0;
-  overflow: hidden;
-}
-
-.house-details-value {
-  background: rgba(0, 65, 130, 0.06);
-  border-color: rgba(0, 65, 130, 0.18);
-}
-
-.house-details-value-amount {
-  margin: 0;
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--color-primary);
-}
-
-.house-details-community-card {
-  background: var(--color-background-secondary);
-}
-
-.house-details-community-title {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-}
-
-.house-details-community-hint {
-  margin: 6px 0 10px 0;
+.detail-metric-label {
   font-size: 12px;
-  line-height: 1.35;
-  color: rgba(96, 125, 139, 0.75);
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.5px;
 }
 
-.house-details-community-value {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--color-warning);
+/* Map Card */
+.details-map-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 8px;
+  /* Inner bezel */
+  height: 340px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  margin-bottom: var(--spacing-md);
 }
 
-.house-details-list-card {
-  padding: 0;
+.details-map-frame {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
   overflow: hidden;
+  position: relative;
+}
+
+/* Schools List */
+.details-school-list {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.school-item {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.school-item:last-child {
+  border-bottom: none;
+}
+
+.school-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.school-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.school-meta {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.school-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  background: #94a3b8;
+  /* default gray */
+}
+
+/* Badge Colors based on grade/rating */
+.badge-grade-a,
+.badge-good {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
+}
+
+.badge-grade-b,
+.badge-average {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+}
+
+.badge-grade-c,
+.badge-poor {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
+}
+
+/* Community / Safety Card */
+.details-community-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.crime-score-container {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.crime-score-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #f59e0b;
+  /* Default warning color */
+  line-height: 1;
+}
+
+.crime-score-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.crime-context-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #64748b;
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 .house-details-list-row {

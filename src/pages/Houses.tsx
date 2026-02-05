@@ -9,16 +9,7 @@ const initialHouseForm: House = {
   address: ''
 };
 
-// Common styles
-const STYLES = {
-  sectionLabel: {
-    fontSize: '17px' as const,
-    fontWeight: '600' as const,
-    color: '#666',
-    marginBottom: '12px',
-    textTransform: 'uppercase' as const
-  }
-};
+
 
 function Houses() {
   const [formData, setFormData] = useState<House>(initialHouseForm);
@@ -135,11 +126,27 @@ function Houses() {
       // Get coordinates from Nominatim
       setIsLoadingMap(true);
       const fullAddress = `${details.address1}, ${details.address2}`;
-      try {
+
+      const fetchCoordinates = async (queryAddress: string) => {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1`
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryAddress)}&limit=1`
         );
-        const results = await response.json();
+        return await response.json();
+      };
+
+      try {
+        let results = await fetchCoordinates(fullAddress);
+
+        // Retry without Unit/Apt if no results
+        if (results.length === 0) {
+          // Remove Unit, Apt, Suite, #, Building and following content
+          const cleanAddress1 = details.address1.replace(/\s+(?:Unit|Apt|Suite|#|Building).*$/i, '');
+          if (cleanAddress1 !== details.address1) {
+            const retryAddress = `${cleanAddress1}, ${details.address2}`;
+            console.log('Retrying map search with:', retryAddress);
+            results = await fetchCoordinates(retryAddress);
+          }
+        }
 
         if (results.length > 0) {
           setMapCoordinates({
@@ -267,113 +274,119 @@ function Houses() {
 
                 {selectedHouseDetails && (
                   <div className="house-details-grid">
+                    {/* Left Column: Hero, Metrics, Schools */}
                     <div className="house-details-main">
                       {/* Hero / Address */}
-                      <div className="card house-details-hero">
-                        <p className="card-kicker">ADDRESS</p>
+                      <div className="house-details-hero">
+                        <p className="card-kicker">Address</p>
                         <p className="house-details-address1">{selectedHouseDetails.address1}</p>
                         <p className="house-details-address2">{selectedHouseDetails.address2}</p>
                       </div>
 
-                      {/* Property Features */}
-                      <div className="section">
-                        <p className="section-title">PROPERTY FEATURES</p>
-                        <div className="house-details-metrics">
-                          {selectedHouseDetails.avmValue != null && (
-                            <div className="metric-card metric-card--span-2">
-                              <p className="metric-value metric-value-currency">
-                                ${selectedHouseDetails.avmValue.toLocaleString('en-US')}
-                              </p>
-                              <p className="metric-label">Estimated Value</p>
+                      {/* Key Property Metrics */}
+                      <p className="section-title">Key Property Metrics</p>
+                      <div className="details-metrics-grid">
+                        {selectedHouseDetails.avmValue != null && (
+                          <div className="detail-metric-card">
+                            <div className="metric-icon-circle">
+                              <img src="/icons/money.png" alt="Estimated Value" className="metric-icon-img" />
                             </div>
-                          )}
+                            <span className="detail-metric-value price-text">
+                              ${(selectedHouseDetails.avmValue / 1000).toFixed(0)}k
+                            </span>
+                            <span className="detail-metric-label">Est. Value</span>
+                          </div>
+                        )}
 
-                          {selectedHouseDetails.beds != null && (
-                            <div className="metric-card">
-                              <p className="metric-value">{selectedHouseDetails.beds}</p>
-                              <p className="metric-label">Bedrooms</p>
+                        {selectedHouseDetails.beds != null && (
+                          <div className="detail-metric-card">
+                            <div className="metric-icon-circle">
+                              <img src="/icons/bed.png" alt="Bedrooms" className="metric-icon-img" />
                             </div>
-                          )}
+                            <span className="detail-metric-value">{selectedHouseDetails.beds}</span>
+                            <span className="detail-metric-label">Bedrooms</span>
+                          </div>
+                        )}
 
-                          {selectedHouseDetails.bathsTotal != null && (
-                            <div className="metric-card">
-                              <p className="metric-value">{selectedHouseDetails.bathsTotal}</p>
-                              <p className="metric-label">Bathrooms</p>
+                        {selectedHouseDetails.bathsTotal != null && (
+                          <div className="detail-metric-card">
+                            <div className="metric-icon-circle">
+                              <img src="/icons/bathcolor.png" alt="Bathrooms" className="metric-icon-img" />
                             </div>
-                          )}
-                        </div>
+                            <span className="detail-metric-value">{selectedHouseDetails.bathsTotal}</span>
+                            <span className="detail-metric-label">Bathrooms</span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Schools Information */}
                       {selectedHouseDetails.schoolsJson && (
                         <div className="section">
-                          <p style={STYLES.sectionLabel}>NEARBY SCHOOLS</p>
-                          <div className="card house-details-list-card">
+                          <p className="section-title">Nearby Schools</p>
+                          <div className="details-school-list">
                             {(() => {
                               try {
                                 const schools = JSON.parse(selectedHouseDetails.schoolsJson);
                                 const schoolList = Array.isArray(schools) ? schools : [schools];
 
                                 if (schoolList.length === 0) {
-                                  return <p className="muted">No school data available</p>;
+                                  return <div className="school-item"><p className="school-meta">No school data available</p></div>;
                                 }
 
                                 return (
                                   <div>
-                                    {schoolList.map((school: any, index: number) => (
-                                      <div
-                                        key={index}
-                                        className="house-details-list-row"
-                                        style={{
-                                          borderBottom: index < schoolList.length - 1 ? '1px solid #e8e8e8' : 'none'
-                                        }}
-                                      >
-                                        {(() => {
-                                          if (import.meta.env.DEV && index === 0) {
-                                            // Helpful for debugging when backend field names differ (Rating vs rating etc.)
-                                            console.debug('[Houses] School sample keys:', Object.keys(school || {}));
-                                          }
-                                          return null;
-                                        })()}
-                                        <div className="house-details-school-row">
-                                          <p className="house-details-school-name">
-                                            {school.InstitutionName || 'School'}
-                                          </p>
-                                          <div className="house-details-school-rating">
-                                            <span className="muted">Rating</span>
-                                            <span className="house-details-school-rating-value">
-                                              {(() => {
-                                                const rawRating =
-                                                  // Backend sample: { schoolRating: "A ", GSTestRating: 0, ... }
-                                                  school?.schoolRating ??
-                                                  school?.SchoolRating ??
-                                                  school?.Rating ??
-                                                  school?.rating ??
-                                                  school?.GSTestRating ??
-                                                  school?.gsTestRating ??
-                                                  school?.OverallRating ??
-                                                  school?.overallRating ??
-                                                  school?.RatingScore ??
-                                                  school?.ratingScore;
+                                    {schoolList.map((school: any, index: number) => {
+                                      // Determine rating text
+                                      const rawRating =
+                                        school?.schoolRating ??
+                                        school?.SchoolRating ??
+                                        school?.Rating ??
+                                        school?.rating ??
+                                        school?.GSTestRating ??
+                                        school?.gsTestRating ??
+                                        school?.OverallRating ??
+                                        school?.overallRating ??
+                                        school?.RatingScore ??
+                                        school?.ratingScore;
 
-                                                if (rawRating == null) return 'N/A';
-                                                if (typeof rawRating === 'object') return JSON.stringify(rawRating);
-                                                const text = String(rawRating).trim();
-                                                return text.length > 0 ? text : 'N/A';
-                                              })()}
+                                      let ratingText = 'N/A';
+                                      let badgeClass = 'school-badge'; // default gray
+
+                                      if (rawRating != null) {
+                                        const text = String(rawRating).trim();
+                                        if (text.length > 0) ratingText = text;
+                                      }
+
+                                      // Determine badge color
+                                      const ratingUpper = ratingText.toUpperCase();
+                                      const ratingNum = parseFloat(ratingText);
+
+                                      if (['A', 'A+', 'A-', '9', '10', '8'].some(r => ratingUpper.includes(r)) || (!isNaN(ratingNum) && ratingNum >= 8)) {
+                                        badgeClass += ' badge-grade-a';
+                                      } else if (['B', 'B+', 'B-', '6', '7'].some(r => ratingUpper.includes(r)) || (!isNaN(ratingNum) && ratingNum >= 6 && ratingNum < 8)) {
+                                        badgeClass += ' badge-grade-b';
+                                      } else if (['C', 'D', 'F', '1', '2', '3', '4', '5'].some(r => ratingUpper.includes(r)) || (!isNaN(ratingNum) && ratingNum > 0 && ratingNum < 6)) {
+                                        badgeClass += ' badge-grade-c';
+                                      }
+
+                                      return (
+                                        <div key={school.InstitutionName + index} className="school-item">
+                                          <div className="school-info">
+                                            <span className="school-name">{school.InstitutionName || 'Unknown School'}</span>
+                                            <span className="school-meta">
+                                              {school?.gradeRange || school?.GradeRange || 'Grades K-12'} • {school?.distance ? `${school.distance} mi` : 'Nearby'}
                                             </span>
                                           </div>
+                                          <div className={badgeClass}>
+                                            {ratingText}
+                                          </div>
                                         </div>
-                                      </div>
-                                    ))}
+                                      );
+                                    })}
                                   </div>
                                 );
                               } catch (error) {
-                                return (
-                                  <div>
-                                    <p className="muted">Error parsing schools data</p>
-                                  </div>
-                                );
+                                return <div className="school-item"><p className="school-meta">Error parsing schools data</p></div>;
                               }
                             })()}
                           </div>
@@ -381,14 +394,14 @@ function Houses() {
                       )}
                     </div>
 
+                    {/* Right Column: Map, Community */}
                     <div className="house-details-side">
                       {/* Location Map */}
                       {(() => {
-                        // Keep the existing map layout/logic unchanged
                         if (isLoadingMap) {
                           return (
-                            <div style={{ marginBottom: '20px', textAlign: 'center', color: '#999', padding: '20px' }}>
-                              Loading map...
+                            <div className="details-map-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <p style={{ color: '#94a3b8' }}>Loading map...</p>
                             </div>
                           );
                         }
@@ -396,41 +409,46 @@ function Houses() {
                         if (mapCoordinates) {
                           const bbox = `${mapCoordinates.lng - 0.01},${mapCoordinates.lat - 0.01},${mapCoordinates.lng + 0.01},${mapCoordinates.lat + 0.01}`;
                           return (
-                            <div style={{ marginBottom: '20px' }}>
-                              <p style={{ fontSize: '17px', fontWeight: '600', color: '#666', marginBottom: '12px', textTransform: 'uppercase' }}>LOCATION</p>
-                              <div style={{
-                                borderRadius: '8px',
-                                overflow: 'hidden',
-                                border: '1px solid #ddd',
-                                height: '300px'
-                              }}>
-                                <iframe
-                                  title="Property Location Map"
-                                  width="100%"
-                                  height="100%"
-                                  style={{ border: 'none' }}
-                                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${mapCoordinates.lat},${mapCoordinates.lng}`}
-                                />
+                            <div className="section">
+                              <p className="section-title">Location</p>
+                              <div className="details-map-card">
+                                <div className="details-map-frame">
+                                  <iframe
+                                    title="Property Location Map"
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 'none' }}
+                                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${mapCoordinates.lat},${mapCoordinates.lng}`}
+                                  />
+                                </div>
                               </div>
                             </div>
                           );
                         }
-
                         return null;
                       })()}
 
                       {/* Community Information */}
                       {selectedHouseDetails.crimeIndex !== undefined && (
                         <div className="section">
-                          <p className="section-title">COMMUNITY</p>
-                          <div className="card house-details-community-card">
-                            <p className="house-details-community-title">Crime Index</p>
-                            <p className="house-details-community-hint">
-                              US average: 100. The higher index, more dangerous, typcally from 80 to 200.
-                            </p>
-                            <p className="house-details-community-value">
-                              {selectedHouseDetails.crimeIndex}
-                            </p>
+                          <p className="section-title">Community Safety</p>
+                          <div className="details-community-card">
+                            <div className="crime-score-container">
+                              <span className="crime-score-label">Crime Index:</span>
+                              <span
+                                className="crime-score-value"
+                                style={{ color: selectedHouseDetails.crimeIndex > 130 ? '#ef4444' : selectedHouseDetails.crimeIndex > 100 ? '#f59e0b' : '#10b981' }}
+                              >
+                                {selectedHouseDetails.crimeIndex}
+                              </span>
+                            </div>
+
+                            <div className="crime-context-text">
+                              US Average: 100. <br />
+                              {selectedHouseDetails.crimeIndex > 100
+                                ? "Higher index indicates higher crime rate than national average."
+                                : "This area has a lower crime rate than the national average."}
+                            </div>
                           </div>
                         </div>
                       )}
@@ -439,11 +457,7 @@ function Houses() {
                 )}
               </div>
 
-              <div className="modal-footer">
-                <button type="button" onClick={handleCloseDetails}>
-                  Back to Properties
-                </button>
-              </div>
+
             </div>
           </div>
         )}
