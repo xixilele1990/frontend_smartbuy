@@ -12,6 +12,8 @@ export interface HouseFromAttom {
   beds?: number;
   bathsTotal?: number;
   roomsTotal?: number;
+  buildingSize?: number;
+  lotSize?: number;
   avmValue?: number;
   geoIdV4?: string;
   crimeId?: string;

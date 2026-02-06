@@ -173,6 +173,27 @@ function Houses() {
     setMapCoordinates(null);
   };
 
+  // Estimate square footage based on bedrooms and bathrooms
+  const estimateSquareFeet = (beds?: number, baths?: number): number => {
+    if (!beds && !baths) return 0;
+    
+    const bedrooms = beds ?? 2;
+    const bathrooms = baths ?? 1;
+    
+    // Base square footage by bedrooms
+    let baseSqFt = 0;
+    if (bedrooms === 1) baseSqFt = 700;
+    else if (bedrooms === 2) baseSqFt = 1050;
+    else if (bedrooms === 3) baseSqFt = 1600;
+    else if (bedrooms === 4) baseSqFt = 2100;
+    else baseSqFt = 2100 + (bedrooms - 4) * 400;
+    
+    // Add square footage for bathrooms (75 sqft per bath)
+    const bathroomSqFt = Math.floor(bathrooms * 75);
+    
+    return baseSqFt + bathroomSqFt;
+  };
+
   return (
     <div>
       <Header />
@@ -318,6 +339,18 @@ function Houses() {
                             </div>
                             <span className="detail-metric-value">{selectedHouseDetails.bathsTotal}</span>
                             <span className="detail-metric-label">Bathrooms</span>
+                          </div>
+                        )}
+
+                        {(selectedHouseDetails.beds != null || selectedHouseDetails.bathsTotal != null) && (
+                          <div className="detail-metric-card">
+                            <div className="metric-icon-circle">
+                              <img src="/icons/budget.png" alt="Square Footage" className="metric-icon-img" />
+                            </div>
+                            <span className="detail-metric-value">
+                              {estimateSquareFeet(selectedHouseDetails.beds, selectedHouseDetails.bathsTotal).toLocaleString('en-US')}
+                            </span>
+                            <span className="detail-metric-label">Est. Sq Ft</span>
                           </div>
                         )}
                       </div>
