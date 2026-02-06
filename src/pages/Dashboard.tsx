@@ -151,9 +151,41 @@ function Dashboard() {
       <Header />
       <div className="page-content">
         <div className="welcome-section">
-          <h1 className="welcome-title-typo">Welcome to SmartBuy</h1>
-          <div className="welcome-separator"></div>
-          <p className="welcome-subtitle-typo">Your Home Buying Decision Support System</p>
+          <div className="welcome-container">
+            <div className="welcome-header">
+              <div className="welcome-greeting">
+                <h1 className="welcome-title-typo">
+                  Welcome back to <span className="brand-highlight">SmartBuy</span> 🏠
+                </h1>
+                <p className="welcome-subtitle-typo">
+                  Find your perfect home with confidence
+                </p>
+              </div>
+              <div className="welcome-progress">
+                <div className={`progress-item ${profile ? 'completed' : ''}`}>
+                  <span className={profile ? 'progress-check' : 'progress-empty'}>
+                    {profile ? '✓' : '○'}
+                  </span>
+                  <span className="progress-label">Profile</span>
+                </div>
+                <div className="progress-arrow">→</div>
+                <div className={`progress-item ${userHouses.length > 0 ? 'completed' : ''}`}>
+                  <span className={userHouses.length > 0 ? 'progress-check' : 'progress-empty'}>
+                    {userHouses.length > 0 ? '✓' : '○'}
+                  </span>
+                  <span className="progress-label">Properties</span>
+                </div>
+                <div className="progress-arrow">→</div>
+                <div className={`progress-item ${scoreResults.length > 0 ? 'completed' : ''}`}>
+                  <span className={scoreResults.length > 0 ? 'progress-check' : 'progress-empty'}>
+                    {scoreResults.length > 0 ? '✓' : '○'}
+                  </span>
+                  <span className="progress-label">Score</span>
+                </div>
+              </div>
+            </div>
+            <div className="welcome-separator"></div>
+          </div>
         </div>
 
         {profile ? (

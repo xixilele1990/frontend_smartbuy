@@ -2138,42 +2138,121 @@ footer p {
 /* Fancy Dashboard Header - Typography & Line Version */
 .welcome-section {
   margin-bottom: var(--spacing-xl);
-  text-align: left;
+}
+
+.welcome-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.welcome-title-typo {
-  font-size: 64px;
-  font-weight: 800;
-  color: #004182;
-  margin: 0;
-  line-height: 1;
-  letter-spacing: -2px;
+.welcome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
 }
 
-.welcome-separator {
-  height: 6px;
-  width: 100%;
-  max-width: 100%;
-  background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%);
-  border-radius: 4px;
+.welcome-greeting {
+  flex: 1;
+}
+
+.welcome-title-typo {
+  font-size: 48px;
+  font-weight: 800;
+  color: #004182;
+  margin: 0 0 12px 0;
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+.brand-highlight {
+  background: linear-gradient(135deg, #004182, #2f6fed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .welcome-subtitle-typo {
-  font-size: 24px;
+  font-size: 18px;
   color: var(--color-text-secondary);
   font-weight: 400;
   margin: 0;
 }
 
+.welcome-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.progress-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--color-background-secondary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  transition: all 0.3s ease;
+  min-width: 70px;
+}
+
+.progress-item.completed {
+  background: #f0f8ff;
+  border-color: #2f6fed;
+}
+
+.progress-check {
+  font-size: 20px;
+  color: #34c759;
+}
+
+.progress-empty {
+  font-size: 18px;
+  color: var(--color-border);
+}
+
+.progress-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-arrow {
+  font-size: 18px;
+  color: var(--color-border);
+}
+
+.welcome-separator {
+  height: 6px;
+  width: 100%;
+  background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%);
+  border-radius: 4px;
+}
+
 @media (max-width: 768px) {
+  .welcome-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .welcome-title-typo {
-    font-size: 42px;
+    font-size: 36px;
   }
 
   .welcome-subtitle-typo {
-    font-size: 18px;
+    font-size: 16px;
+  }
+
+  .welcome-progress {
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: 16px;
   }
 }
