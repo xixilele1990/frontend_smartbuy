@@ -301,7 +301,14 @@ function Houses() {
                       <div className="house-details-hero">
                         <p className="card-kicker">Address</p>
                         <p className="house-details-address1">{selectedHouseDetails.address1}</p>
-                        <p className="house-details-address2">{selectedHouseDetails.address2}</p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                          <p className="house-details-address2">{selectedHouseDetails.address2}</p>
+                          {(selectedHouseDetails.beds != null || selectedHouseDetails.bathsTotal != null) && (
+                            <p className="house-details-address2" style={{ fontSize: '14px', opacity: 0.8, marginLeft: '16px' }}>
+                              {estimateSquareFeet(selectedHouseDetails.beds, selectedHouseDetails.bathsTotal).toLocaleString('en-US')} sq ft
+                            </p>
+                          )}
+                        </div>
                       </div>
 
                       {/* Key Property Metrics */}
@@ -339,18 +346,6 @@ function Houses() {
                             </div>
                             <span className="detail-metric-value">{selectedHouseDetails.bathsTotal}</span>
                             <span className="detail-metric-label">Bathrooms</span>
-                          </div>
-                        )}
-
-                        {(selectedHouseDetails.beds != null || selectedHouseDetails.bathsTotal != null) && (
-                          <div className="detail-metric-card">
-                            <div className="metric-icon-circle">
-                              <img src="/icons/budget.png" alt="Square Footage" className="metric-icon-img" />
-                            </div>
-                            <span className="detail-metric-value">
-                              {estimateSquareFeet(selectedHouseDetails.beds, selectedHouseDetails.bathsTotal).toLocaleString('en-US')}
-                            </span>
-                            <span className="detail-metric-label">Est. Sq Ft</span>
                           </div>
                         )}
                       </div>
