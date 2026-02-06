@@ -291,33 +291,138 @@ function Dashboard() {
                       ))}
                     </div>
                   </div>
-                  <div style={{
-                    backgroundColor: '#f0f4f9',
-                    padding: '12px 16px',
-                    borderRadius: '6px',
-                    marginBottom: '16px',
-                    fontSize: '14px',
-                    color: '#607d8b'
-                  }}>
+                  <div className="mode-description-card">
                     {selectedMode === 'Balanced' && (
-                      <p style={{ margin: 0 }}>
-                        <strong style={{ color: '#004182' }}>Balanced Mode:</strong> Equal weight across all factors — Price: 25%, Space: 25%, Safety: 25%, School: 25%
-                      </p>
+                      <>
+                        <div className="mode-description-header">
+                          <div className="mode-pie-chart mode-pie-balanced"></div>
+                          <div>
+                            <h3 className="mode-description-title">Balanced Mode</h3>
+                            <div className="mode-description-content">
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#10b981' }}>●</span>
+                                <span className="mode-weight-label">Price</span>
+                                <span>25%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#f59e0b' }}>●</span>
+                                <span className="mode-weight-label">Space</span>
+                                <span>25%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#ef4444' }}>●</span>
+                                <span className="mode-weight-label">Safety</span>
+                                <span>25%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#8b5cf6' }}>●</span>
+                                <span className="mode-weight-label">School</span>
+                                <span>25%</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mode-summary">Equal weight across all factors for a well-rounded home buying decision.</div>
+                      </>
                     )}
                     {selectedMode === 'Budget Driven' && (
-                      <p style={{ margin: 0 }}>
-                        <strong style={{ color: '#004182' }}>Budget Driven Mode:</strong> Prioritizes affordability — Price: 50%, Space: 20%, Safety: 20%, School: 10%
-                      </p>
+                      <>
+                        <div className="mode-description-header">
+                          <div className="mode-pie-chart mode-pie-budget"></div>
+                          <div>
+                            <h3 className="mode-description-title">Budget Driven Mode</h3>
+                            <div className="mode-description-content">
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#10b981' }}>●</span>
+                                <span className="mode-weight-label">Price</span>
+                                <span>50%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#f59e0b' }}>●</span>
+                                <span className="mode-weight-label">Space</span>
+                                <span>20%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#ef4444' }}>●</span>
+                                <span className="mode-weight-label">Safety</span>
+                                <span>20%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#8b5cf6' }}>●</span>
+                                <span className="mode-weight-label">School</span>
+                                <span>10%</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mode-summary">Prioritizes affordability and best value. Perfect for budget-conscious buyers.</div>
+                      </>
                     )}
                     {selectedMode === 'Safety First' && (
-                      <p style={{ margin: 0 }}>
-                        <strong style={{ color: '#004182' }}>Safety First Mode:</strong> Emphasizes low crime areas — Price: 25%, Space: 15%, Safety: 50%, School: 10%
-                      </p>
+                      <>
+                        <div className="mode-description-header">
+                          <div className="mode-pie-chart mode-pie-safety"></div>
+                          <div>
+                            <h3 className="mode-description-title">Safety First Mode</h3>
+                            <div className="mode-description-content">
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#10b981' }}>●</span>
+                                <span className="mode-weight-label">Price</span>
+                                <span>25%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#f59e0b' }}>●</span>
+                                <span className="mode-weight-label">Space</span>
+                                <span>15%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#ef4444' }}>●</span>
+                                <span className="mode-weight-label">Safety</span>
+                                <span>50%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#8b5cf6' }}>●</span>
+                                <span className="mode-weight-label">School</span>
+                                <span>10%</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mode-summary">Emphasizes living in safe neighborhoods with low crime rates. Family peace of mind matters.</div>
+                      </>
                     )}
                     {selectedMode === 'Education First' && (
-                      <p style={{ margin: 0 }}>
-                        <strong style={{ color: '#004182' }}>Education First Mode:</strong> Focuses on school quality — Price: 20%, Space: 15%, Safety: 15%, School: 50%
-                      </p>
+                      <>
+                        <div className="mode-description-header">
+                          <div className="mode-pie-chart mode-pie-education"></div>
+                          <div>
+                            <h3 className="mode-description-title">Education First Mode</h3>
+                            <div className="mode-description-content">
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#10b981' }}>●</span>
+                                <span className="mode-weight-label">Price</span>
+                                <span>20%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#f59e0b' }}>●</span>
+                                <span className="mode-weight-label">Space</span>
+                                <span>15%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#ef4444' }}>●</span>
+                                <span className="mode-weight-label">Safety</span>
+                                <span>15%</span>
+                              </div>
+                              <div className="mode-weight-item">
+                                <span className="mode-weight-label" style={{ color: '#8b5cf6' }}>●</span>
+                                <span className="mode-weight-label">School</span>
+                                <span>50%</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mode-summary">Focuses on high-quality schools and education. Ideal for families with school-age children.</div>
+                      </>
                     )}
                   </div>
                 </>
