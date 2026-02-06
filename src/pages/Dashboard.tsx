@@ -88,27 +88,43 @@ function Dashboard() {
     setIsLoadingScores(true);
     setScoringError(null);
     try {
+      const normalize = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+      const keyFromParts = (a1: string, a2: string) => `${normalize(a1)},${normalize(a2)}`;
+      const keyFromFullAddress = (full: string) => {
+        const parts = full.split(',').map(p => p.trim()).filter(Boolean);
+        if (parts.length === 0) return '';
+        return keyFromParts(parts[0] || full, parts.slice(1).join(', ') || 'Unknown');
+      };
+
       // Create a temporary profile with selected mode
       const tempProfile: UserProfile = { ...profile, priorityMode: selectedMode as import('../types').PriorityMode };
 
       // Convert houses to address format for backend
+      const originalAddresses = userHouses.map(h => h.address);
+      const addressKeyToOriginal = new Map<string, string>();
       const addresses = userHouses.map(house => {
         const parts = house.address.split(',').map(p => p.trim());
-        return {
-          address1: parts[0] || house.address,
-          address2: parts.slice(1).join(', ') || 'Unknown',
-          originalAddress: house.address, // Keep original for display
-        };
+        const address1 = parts[0] || house.address;
+        const address2 = parts.slice(1).join(', ') || 'Unknown';
+        addressKeyToOriginal.set(keyFromParts(address1, address2), house.address);
+        return { address1, address2 };
       });
 
-      // Call backend to score all addresses using selected mode
       const results = await batchScoreFromAddresses(tempProfile, addresses);
 
-      // Add original addresses to results for display
-      const resultsWithAddresses = results.map((result, index) => ({
-        ...result,
-        displayAddress: addresses[index]?.originalAddress || result.house?.address || 'Unknown Address'
-      }));
+      // Add addresses to results for display.
+      // IMPORTANT: backend may return results sorted by score, so we must not rely on index matching.
+      const resultsWithAddresses = results.map((result, index) => {
+        const backendAddress = result.house?.address || '';
+        const key = keyFromFullAddress(backendAddress);
+        const displayAddress =
+          (key ? addressKeyToOriginal.get(key) : undefined) ||
+          backendAddress ||
+          originalAddresses[index] ||
+          'Unknown Address';
+
+        return { ...result, displayAddress };
+      });
 
       setScoreResults(resultsWithAddresses);
       setExpandedScoreIndices(new Set());

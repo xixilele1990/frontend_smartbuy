@@ -194,7 +194,7 @@ function Houses() {
                 placeholder="e.g. 123 Main Street"
                 required
               />
-              <p className="form-hint"> Example:1600 Amphitheatre Pkwy, Mountain View, CA 94043</p>
+              <p className="form-hint"> Example:845 Julian ter unit1,Sunnyvale,CA, 94086</p>
             </div>
 
             {errorMessage ? <p style={{ color: 'red' }}>{errorMessage}</p> : null}
@@ -292,7 +292,10 @@ function Houses() {
                               <img src="/icons/money.png" alt="Estimated Value" className="metric-icon-img" />
                             </div>
                             <span className="detail-metric-value price-text">
-                              ${(selectedHouseDetails.avmValue / 1000).toFixed(0)}k
+                              {(() => {
+                                const k = Math.round(selectedHouseDetails.avmValue / 1000);
+                                return `$${k.toLocaleString('en-US')}k`;
+                              })()}
                             </span>
                             <span className="detail-metric-label">Est. Value</span>
                           </div>
