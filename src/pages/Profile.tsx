@@ -157,16 +157,18 @@ function Profile() {
     setConfirmDialog({
       isOpen: true,
       title: 'Delete Profile',
-      message: 'Are you sure you want to delete your profile? This action cannot be undone.',
+      message: 'Are you sure you want to delete your profile? This will also delete all your saved properties. This action cannot be undone.',
       onConfirm: async () => {
         setConfirmDialog({ ...confirmDialog, isOpen: false });
         setIsLoading(true);
 
         try {
           await deleteProfile();
+          // Cascade delete: clear all properties from localStorage
+          localStorage.removeItem('userHouses');
           setProfile(initialProfile);
           setIsExampleData(true);
-          setSaveMessage('Profile deleted successfully.');
+          setSaveMessage('Profile and all properties deleted successfully.');
           setTimeout(() => {
             navigate('/');
           }, 1500);
