@@ -28,7 +28,7 @@ App runs at http://localhost:5173
 3. **Start Frontend**
    ```bash
    npm install
-npm run dev
+   npm run dev
    ```
 
 ## Project Structure
