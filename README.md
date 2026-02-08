@@ -84,43 +84,60 @@ src/
 - All API calls include `sessionId` for user identification
 - Backend uses `sessionId` to persist data across sessions
 
-## Progress Checklist
+## Project Status
 
-### Completed ✅
-- [x] Initialize Vite + React + TypeScript setup
-- [x] Install routing: `react-router-dom`
-- [x] Add Dashboard, Profile, Houses pages
-- [x] Implement Buyer Profile form with validation
-- [x] Create API service layer (`api.ts`)
-- [x] Add session management (auto-generate `sessionId`)
-- [x] Integrate Profile with backend API (DTO mapping)
-- [x] Update Dashboard to load profile from backend
-- [x] Create houseService.ts with ATTOM API integration
-- [x] Update Houses.tsx to fetch real property data from ATTOM
-- [x] Add CORS support in backend (HouseController)
-- [x] Add scoringService.ts and integrate Score API
-- [x] Update Dashboard to manually calculate SmartScore on button click
-- [x] Display SmartScore results with user-entered addresses
-- [x] Handle ATTOM score errors with friendly messaging
-- [x] Implement loading states and error handling
-- [x] Clean up unused code and optimize imports
-- [x] Push all changes to GitHub
-- [x] Add house detail viewer with school & crime data
-- [x] Integrate Nominatim/OpenStreetMap for property location mapping
-- [x] Handle ATTOM detailed property data (AVM value, schools, crime)
-- [x] Implement scoringService.ts with batch scoring API
+**✅ MVP Complete** - Core functionality fully implemented and operational
 
-### In Progress ⏳
-- [ ] Persist houses to backend database (currently local-only)
-- [ ] Implement house deletion on backend
+### Core Features Implemented ✅
+**Frontend Setup & Architecture**
+- [x] Vite + React 18 + TypeScript with strict type checking
+- [x] React Router DOM for navigation (Dashboard, Profile, Houses)
+- [x] Session management with auto-generated `sessionId`
+- [x] Service layer architecture (`api.ts`, `profileService.ts`, `houseService.ts`, `scoringService.ts`)
 
-### Future Features 🚀
-- [x] Implement actual SmartScore calculation with real property data
-- [ ] Create `HouseDetail` route with full scoring breakdown
-- [ ] Add property filtering and sorting options
-- [ ] Implement property comparison feature
-- [x] Add CSS styling (design system)
-- [ ] User authentication/authorization
+**Buyer Profile Management**
+- [x] Profile form with validation (budget, bedrooms, bathrooms, priority mode)
+- [x] Backend API integration with DTO mapping
+- [x] Profile persistence and retrieval by session
+- [x] Profile deletion with confirmation dialog
+
+**Property Management**
+- [x] Add properties by address via ATTOM API
+- [x] Display property details (beds, baths, rooms, AVM value)
+- [x] School data integration (ratings, distance, student-teacher ratio)
+- [x] Crime index data for property areas
+- [x] Interactive property location maps (Nominatim/OpenStreetMap)
+- [x] Property deletion with confirmation
+- [x] Detailed property viewer with expandable sections
+
+**SmartScore System**
+- [x] Batch scoring API integration
+- [x] Multi-mode scoring (Balanced, Budget Driven, Safety First, Education First)
+- [x] Dimension-based scoring (budget, space, safety, education)
+- [x] Score calculation with detailed breakdown
+- [x] Warning system for data limitations
+- [x] Loading states and error handling
+
+**UI/UX**
+- [x] Responsive layout with CSS styling
+- [x] Loading indicators for async operations
+- [x] Error handling with user-friendly messages
+- [x] Confirmation dialogs for destructive actions
+- [x] Expandable sections for detailed information
+
+### Known Limitations
+- Houses stored in localStorage (not persisted to backend database)
+- No user authentication/authorization system
+- Single-session architecture (no multi-user support yet)
+
+### Future Enhancements 🚀
+- [ ] Persist houses to backend database
+- [ ] User authentication and multi-user support
+- [ ] Property filtering and sorting options
+- [ ] Side-by-side property comparison feature
+- [ ] Dedicated `HouseDetail` route with full scoring breakdown
+- [ ] Advanced analytics and reporting
+- [ ] Favorite/bookmark property feature
 
 ## Backend Integration
 
